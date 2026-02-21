@@ -125,10 +125,10 @@ export default function Home() {
               textShadow: '0 2px 40px rgba(200,118,44,0.3)',
             }}
           >
-            Your Year in Vinyl
+            your year, but rewrapped
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', marginTop: 8, fontSize: 16 }}>
-            Click a record to play it — or drag it onto the turntable
+            click a record to play it — or drag it onto the turntable
           </p>
         </motion.div>
 
