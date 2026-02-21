@@ -67,6 +67,10 @@ export const RECORDS = [
 
 export type Record = typeof RECORDS[0];
 
+const PLAYER_HEIGHT = 560;
+// CDs sit higher — near top third of turntable body
+const CAROUSEL_TOP = 130;
+
 export default function Home() {
   const [activeRecord, setActiveRecord] = useState<Record | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -110,7 +114,7 @@ export default function Home() {
   const navActiveId = showPanel ? (activeRecord?.id ?? null) : null;
 
   return (
-    <div className="min-h-screen" style={{ background: '#171515' }}>
+    <div className="min-h-screen" style={{ background: '#0d0b0b' }}>
       <Header authStatus={authStatus} profile={spotifyData?.profile} />
 
       <main style={{
@@ -122,7 +126,7 @@ export default function Home() {
 
         {/* ── Hero ── */}
         <motion.div
-          style={{ textAlign: 'center', marginBottom: 32 }}
+          style={{ textAlign: 'center', marginBottom: 28 }}
           initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
@@ -138,89 +142,15 @@ export default function Home() {
             your music,{' '}
             <span style={{ color: '#E8923A', fontStyle: 'italic' }}>but rewrapped</span>
           </h1>
-          <p style={{
-            color: 'rgba(255,255,255,0.75)',
-            fontStyle: 'italic', marginTop: 14, fontSize: 18,
-            fontFamily: 'Georgia, serif',
-          }}>
-            Pick a record to begin your journey
-          </p>
+
         </motion.div>
 
-        {/* ── Turntable ── */}
-        <AnimatePresence>
-          {showPlayerArea && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35 }}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 28 }}
-            >
-              <TurntableUnit
-                activeRecord={activeRecord}
-                isLanding={isLanding}
-                onDrop={(id) => { const rec = RECORDS.find(r => r.id === id); if (rec) placeRecord(rec); }}
-                isDragOver={dragOver}
-                onDragOver={() => setDragOver(true)}
-                onDragLeave={() => setDragOver(false)}
-                onEject={handleEject}
-              />
-
-              {/* Now playing */}
-              <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <AnimatePresence mode="wait">
-                  {activeRecord && !isLanding ? (
-                    <motion.div key={activeRecord.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 24, color: '#ffffff', fontFamily: "'Playfair Display', serif", fontWeight: 'bold', marginBottom: 4 }}>
-                        {activeRecord.icon} {activeRecord.title}
-                      </div>
-                      <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
-                        {activeRecord.sub}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginTop: 7 }}>
-                        {[0, 1, 2, 3, 4].map(i => (
-                          <motion.div key={i} style={{ width: 2.5, background: '#1DB954', borderRadius: 2 }}
-                            animate={{ height: [3, 16, 3] }}
-                            transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.13, ease: 'easeInOut' }}
-                          />
-                        ))}
-                      </div>
-                    </motion.div>
-                  ) : !activeRecord ? (
-                    <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <p style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 16, margin: 0 }}>
-                        Your Collection - Click or Drag a Record to the Turntable
-                      </p>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── CD Shelf ── */}
-        <AnimatePresence>
-          {showPlayerArea && (
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              transition={{ delay: 0.18, duration: 0.4 }}
-              style={{ width: '100%', maxWidth: 700, marginBottom: 28 }}
-            >
-              <RecordShelf records={RECORDS} onRecordClick={placeRecord} activeId={activeRecord?.id} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── Nav pills ── */}
+        {/* ── Nav pills — above turntable ── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ marginBottom: 36 }}
+          style={{ marginBottom: 50 }}
         >
           <div style={{
             display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center',
@@ -267,6 +197,92 @@ export default function Home() {
           </div>
         </motion.div>
 
+        {/* ── Player zone ── */}
+        <AnimatePresence>
+          {showPlayerArea && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35 }}
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: PLAYER_HEIGHT,
+                marginBottom: 16,
+              }}
+            >
+              {/* z-index 1 — Carousel, pinned to exact vertical position */}
+              <div style={{
+                position: 'absolute',
+                top: CAROUSEL_TOP,
+                left: 0,
+                right: 0,
+                zIndex: 1,
+              }}>
+                <RecordShelf
+                  records={RECORDS}
+                  onRecordClick={placeRecord}
+                  activeId={activeRecord?.id}
+                />
+              </div>
+
+              {/* z-index 2 — Turntable on top */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 10,
+              }}>
+                <TurntableUnit
+                  activeRecord={activeRecord}
+                  isLanding={isLanding}
+                  onDrop={(id) => { const rec = RECORDS.find(r => r.id === id); if (rec) placeRecord(rec); }}
+                  isDragOver={dragOver}
+                  onDragOver={() => setDragOver(true)}
+                  onDragLeave={() => setDragOver(false)}
+                  onEject={handleEject}
+                />
+
+                {/* Now playing */}
+                <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <AnimatePresence mode="wait">
+                    {activeRecord && !isLanding ? (
+                      <motion.div key={activeRecord.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 24, color: '#ffffff', fontFamily: "'Playfair Display', serif", fontWeight: 'bold', marginBottom: 4 }}>
+                          {activeRecord.icon} {activeRecord.title}
+                        </div>
+                        <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+                          {activeRecord.sub}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginTop: 7 }}>
+                          {[0, 1, 2, 3, 4].map(i => (
+                            <motion.div key={i} style={{ width: 2.5, background: '#1DB954', borderRadius: 2 }}
+                              animate={{ height: [3, 16, 3] }}
+                              transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.13, ease: 'easeInOut' }}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    ) : !activeRecord ? (
+                      <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <p style={{ color: 'rgb(252, 252, 252)', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 20, margin: 0 }}>
+                          Click or drag a record on to the turntable to play
+                        </p>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ── Dashboard panel ── */}
         <AnimatePresence mode="wait">
           {showPanel && activeRecord ? (
@@ -301,9 +317,7 @@ export default function Home() {
               style={{ textAlign: 'center', maxWidth: 280 }}
             >
               <div style={{ fontSize: 60, marginBottom: 16, opacity: 0.35 }}>🎵</div>
-              <p style={{ fontSize: 16, fontStyle: 'italic', lineHeight: 1.7, fontFamily: 'Georgia, serif', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
-                Select a record from your collection to see your listening analytics
-              </p>
+            
             </motion.div>
           ) : null}
         </AnimatePresence>

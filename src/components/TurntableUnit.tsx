@@ -82,6 +82,9 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
         boxShadow: [
           '0 0 0 1px rgba(200,118,44,0.2)',
           '0 0 40px rgba(200,118,44,0.18)',
+          '0 0 0 10px #0d0b0b',
+          '0 0 0 18px rgba(13,11,11,0.6)',
+          '0 0 0 28px rgba(13,11,11,0.15)',
           '0 24px 80px rgba(0,0,0,0.85)',
           'inset 0 1px 0 rgba(255,255,255,0.06)',
         ].join(', '),
