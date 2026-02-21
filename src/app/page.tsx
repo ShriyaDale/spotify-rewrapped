@@ -252,7 +252,7 @@ export default function Home() {
           ) : null}
         </AnimatePresence>
 
-        {/* Auth note */}
+        {/* Auth note
         <AnimatePresence>
           {authStatus === 'idle' && (
             <motion.div
@@ -277,7 +277,7 @@ export default function Home() {
               </p>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
       </main>
     </div>
   );

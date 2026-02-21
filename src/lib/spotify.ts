@@ -2,6 +2,10 @@
 
 const BASE = 'https://api.spotify.com/v1';
 
+// Simple in-memory cache for API responses
+const cache = new Map<string, { data: any; expires: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 export async function refreshAccessToken(refreshToken: string) {
   const res = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -17,14 +21,60 @@ export async function refreshAccessToken(refreshToken: string) {
   return res.json();
 }
 
-export async function spotifyFetch(path: string, token: string) {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (res.status === 401) throw new Error('UNAUTHORIZED');
-  if (res.status === 429) throw new Error('RATE_LIMITED');
-  if (!res.ok) throw new Error(`Spotify error ${res.status}`);
-  return res.json();
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function spotifyFetch(path: string, token: string, useCache = true) {
+  const cacheKey = `${token.slice(-10)}:${path}`;
+  
+  // Check cache first
+  if (useCache) {
+    const cached = cache.get(cacheKey);
+    if (cached && cached.expires > Date.now()) {
+      return cached.data;
+    }
+  }
+
+  // Retry with exponential backoff for rate limits
+  let retries = 0;
+  const maxRetries = 3;
+  
+  while (retries <= maxRetries) {
+    const res = await fetch(`${BASE}${path}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+    if (res.status === 401) throw new Error('UNAUTHORIZED');
+    
+    // Handle rate limiting with exponential backoff
+    if (res.status === 429) {
+      const retryAfter = res.headers.get('Retry-After');
+      const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : Math.pow(2, retries) * 1000;
+      
+      if (retries < maxRetries) {
+        console.log(`[spotify] Rate limited, waiting ${waitMs}ms before retry ${retries + 1}/${maxRetries}`);
+        await sleep(waitMs);
+        retries++;
+        continue;
+      } else {
+        throw new Error('RATE_LIMITED');
+      }
+    }
+    
+    if (!res.ok) throw new Error(`Spotify error ${res.status}`);
+    
+    const data = await res.json();
+    
+    // Cache successful responses
+    if (useCache) {
+      cache.set(cacheKey, { data, expires: Date.now() + CACHE_TTL_MS });
+    }
+    
+    return data;
+  }
+  
+  throw new Error('RATE_LIMITED');
 }
 
 export async function getTopArtists(token: string, timeRange = 'medium_term', limit = 20) {
