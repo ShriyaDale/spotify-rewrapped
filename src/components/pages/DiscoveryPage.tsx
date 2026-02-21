@@ -10,7 +10,7 @@ export default function DiscoveryPage({ data }: Props) {
   const [loading, setLoading] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);
   const [djListening, setDjListening] = useState(false);
-  const [djMessage, setDjMessage] = useState('Hype DJ ready — say: play 1, play <song>, next, previous, pause, resume');
+  const [djMessage, setDjMessage] = useState('Hype DJ ready — say: play 1, search for Drake, next, previous, pause, resume');
   const [voiceTranscript, setVoiceTranscript] = useState('');
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -114,7 +114,7 @@ export default function DiscoveryPage({ data }: Props) {
     }
 
     if (track.spotifyUrl) {
-      const msg = `No preview for ${track.name}, opening Spotify right now.`;
+      const msg = `playing ${track.name}, opening Spotify right now.`;
       setDjMessage(msg);
       speak(msg);
       window.open(track.spotifyUrl, '_blank', 'noopener,noreferrer');
@@ -145,6 +145,19 @@ export default function DiscoveryPage({ data }: Props) {
   const executeVoiceCommand = (raw: string) => {
     const command = raw.toLowerCase().trim();
     if (!command) return;
+
+    const searchMatch = command.match(/^(search for|search|find|look up)\s+(.+)$/i);
+    if (searchMatch?.[2]) {
+      const searchTerm = searchMatch[2].trim();
+      if (searchTerm) {
+        setQuery(searchTerm);
+        handleSearch(searchTerm);
+        const msg = `Searching Spotify for ${searchTerm}.`;
+        setDjMessage(msg);
+        speak(msg);
+        return;
+      }
+    }
 
     if (command.includes('next')) {
       playTrackByIndex(currentTrackIndex + 1);
@@ -195,7 +208,7 @@ export default function DiscoveryPage({ data }: Props) {
       return;
     }
 
-    setDjMessage('I did not catch that. Say: play 1, play <song>, next, previous, pause, resume.');
+    setDjMessage('I did not catch that. Say: search for Drake, play 1, next, previous, pause, or resume.');
   };
 
   const toggleDjListening = () => {
@@ -235,7 +248,7 @@ export default function DiscoveryPage({ data }: Props) {
 
       recognition.onstart = () => {
         setDjListening(true);
-        setDjMessage('Mic is live. Say: play 1, next, previous, pause, or resume.');
+        setDjMessage('Mic is live. Say: search for <artist>, play 1, next, previous, pause, or resume.');
       };
 
       recognition.onresult = (event: any) => {
@@ -294,11 +307,12 @@ export default function DiscoveryPage({ data }: Props) {
     };
   }, []);
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  const handleSearch = async (customQuery?: string) => {
+    const searchTerm = (customQuery ?? query).trim();
+    if (!searchTerm) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
       if (res.ok) {
         const d = await res.json();
         setResults(d.tracks?.items || []);
@@ -382,7 +396,7 @@ export default function DiscoveryPage({ data }: Props) {
             }}
           />
           <button
-            onClick={handleSearch}
+            onClick={() => handleSearch()}
             style={{
               padding: '0 16px', borderRadius: 10, border: 'none',
               background: 'rgba(46,74,172,0.5)', color: 'white',
