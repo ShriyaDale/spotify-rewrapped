@@ -205,13 +205,13 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
             animate={isSpinning ? { boxShadow: ['0 0 4px #00ff88', '0 0 12px #00ff88', '0 0 4px #00ff88'] } : { boxShadow: 'none' }}
             transition={isSpinning ? { repeat: Infinity, duration: 2 } : {}}
           />
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', letterSpacing: 2, fontWeight: 700 }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', letterSpacing: 2, fontWeight: 700 }}>
             {isSpinning ? 'PLAYING' : isLanding ? 'LOADING' : 'STANDBY'}
           </span>
         </div>
 
         {/* Brand */}
-        <div style={{ position: 'absolute', bottom: 18, right: 18, fontSize: 9, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace', letterSpacing: 3 }}>
+        <div style={{ position: 'absolute', bottom: 18, right: 18, fontSize: 12, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace', letterSpacing: 3 }}>
           RE·WRAPPED
         </div>
       </div>

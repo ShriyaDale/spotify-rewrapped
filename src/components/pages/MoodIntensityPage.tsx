@@ -127,7 +127,7 @@ function StatBar({ label, value, color, delay = 0, source }: { label: string; va
         />
       </div>
       {source && (
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', marginTop: 3 }}>{source}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', marginTop: 3 }}>{source}</div>
       )}
     </div>
   );
@@ -175,14 +175,14 @@ export default function MoodIntensityPage({ data }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
         {/* Helix */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>SONIC HELIX</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>SONIC HELIX</div>
           <HelixCanvas width={120} height={240} />
         </div>
 
         {/* DNA Indices + Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>DNA INDICES</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>DNA INDICES</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <StatBar label="Groove" value={indices.groove} color="#CD853F" delay={0} />
               <StatBar label="Brightness" value={indices.brightness} color="#90EE90" delay={0.1} />
@@ -199,7 +199,7 @@ export default function MoodIntensityPage({ data }: Props) {
 
         {/* Radar */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'visible' }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 8 }}>MOOD RADAR</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 8 }}>MOOD RADAR</div>
           <svg width="100%" height="100%" viewBox={`0 0 ${W} ${W}`} style={{ maxWidth: 260, maxHeight: 260, overflow: 'visible' }}>
             {[0.25, 0.5, 0.75, 1].map((s, i) => (
               <polygon key={i}
@@ -231,7 +231,7 @@ export default function MoodIntensityPage({ data }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
         {/* Mood Stats */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>
             MOOD STATS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
           </div>
           <StatBar label="Valence" value={mood.valence ?? 0.5} color="#FFD700" delay={0} source="happy vs sad tendency" />
@@ -242,7 +242,7 @@ export default function MoodIntensityPage({ data }: Props) {
 
         {/* Top Tracks */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>
             TOP TRACKS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

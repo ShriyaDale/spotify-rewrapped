@@ -129,10 +129,10 @@ export default function FuturePage({ data }: Props) {
         }}
       >
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 6 }}>
+          <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.63)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 6 }}>
             AI FUTURECAST
           </div>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontFamily: 'Georgia, serif', lineHeight: 1.5, margin: '0 0 10px' }}>
+          <p style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.37)', fontFamily: 'Georgia, serif', lineHeight: 1.5, margin: '0 0 10px' }}>
             Get personalized predictions powered by your Spotify listening patterns. Click below to generate insights.
           </p>
         </div>
@@ -239,7 +239,7 @@ export default function FuturePage({ data }: Props) {
                         transition={{ delay: i * 0.1 + 0.3, duration: 0.6 }}
                       />
                     </div>
-                    <span style={{ fontSize: 9, color: '#7030B0', fontFamily: 'monospace', minWidth: '30px' }}>
+                    <span style={{ fontSize: 12, color: '#7030B0', fontFamily: 'monospace', minWidth: '30px' }}>
                       {Math.round(p.confidence * 100)}%
                     </span>
                   </div>
@@ -261,7 +261,7 @@ export default function FuturePage({ data }: Props) {
               borderTop: '1px solid rgba(112,48,176,0.1)',
             }}
           >
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 2, fontFamily: 'monospace', marginBottom: 10 }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 2, fontFamily: 'monospace', marginBottom: 10 }}>
               PREDICTED NEXT LISTENS
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

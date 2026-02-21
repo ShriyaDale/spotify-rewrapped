@@ -233,7 +233,7 @@ export default function WorldPage({ data }: { data: any }) {
       >
         <div
           style={{
-            fontSize: 9,
+            fontSize: 12,
             color: 'rgba(255,255,255,0.3)',
             letterSpacing: 3,
             fontFamily: 'monospace',
@@ -310,7 +310,7 @@ export default function WorldPage({ data }: { data: any }) {
           padding: 14,
         }}
       >
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace' }}>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace' }}>
           COUNTRY DETAILS
         </div>
 

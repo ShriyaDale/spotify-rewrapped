@@ -279,7 +279,7 @@ export default function ConcertRadar({ data }: Props) {
                     >
                       <span style={{ fontSize: 11, color: isActive ? 'rgba(255,210,60,0.95)' : 'rgba(255,255,255,0.7)', fontFamily: "'DM Sans', sans-serif" }}>{name}</span>
                       <span style={{
-                        fontSize: 9, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: 1,
+                        fontSize: 12, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: 1,
                         color: isActive ? 'rgba(255,210,60,0.7)' : 'rgba(255,255,255,0.3)',
                       }}>{count}</span>
                     </button>
@@ -583,7 +583,7 @@ function MonthGroup({ month, events, daysUntil, accent }: {
                   >
                     <div style={{
                       fontFamily: "'Bebas Neue', sans-serif",
-                      fontSize: 9, letterSpacing: 2,
+                      fontSize: 12, letterSpacing: 2,
                       color: 'rgba(255,255,255,0.35)',
                     }}>
                       {d.toLocaleString('en-US', { month: 'short' }).toUpperCase()}
@@ -597,7 +597,7 @@ function MonthGroup({ month, events, daysUntil, accent }: {
                     </div>
                     <div style={{
                       fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 9, color: 'rgba(255,255,255,0.25)',
+                      fontSize: 12, color: 'rgba(255,255,255,0.25)',
                     }}>
                       {d.toLocaleString('en-US', { weekday: 'short' }).toUpperCase()}
                     </div>

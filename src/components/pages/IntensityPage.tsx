@@ -30,7 +30,7 @@ export default function IntensityPage({ data }: Props) {
             {!artists[0]?.image && '🎸'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace' }}>TOP ARTIST</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace' }}>TOP ARTIST</div>
             <div style={{ fontSize: 22, color: 'white', fontFamily: "'Playfair Display', serif", fontWeight: 'bold', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {artists[0]?.name}
             </div>
@@ -53,7 +53,7 @@ export default function IntensityPage({ data }: Props) {
 
       {/* Artist bars */}
       <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>FAN INTENSITY BARS</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>FAN INTENSITY BARS</div>
         {artists.map((a: any, i: number) => (
           <motion.div
             key={a.name}
