@@ -11,10 +11,12 @@
     "@react-three/drei": "^9.107.0",
     "@react-three/fiber": "^8.17.5",
     "cookies-next": "^4.2.1",
+    "d3-scale": "^4.0.2",
     "framer-motion": "^11.3.0",
     "next": "^14.2.5",
     "react": "^18",
     "react-dom": "^18",
+    "react-simple-maps": "^3.0.0",
     "recharts": "^2.12.7",
     "three": "^0.166.1",
     "zustand": "^4.5.4"
