@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Call ElevenLabs TTS API
-    const ttsRes = await fetch('https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', {
+    const ttsRes = await fetch(/*'https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL'*/'https://elevenlabs.io/app/voice-library?voiceId=auq43ws1oslv0tO4BDa7', {
       method: 'POST',
       headers: {
         'xi-api-key': process.env.ELEVENLABS_API_KEY!,
