@@ -36,7 +36,7 @@ export default function DiscoveryPage({ data }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Search */}
       <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>SEARCH CATALOG</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>SEARCH CATALOG</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <input
             value={query}
@@ -114,7 +114,7 @@ export default function DiscoveryPage({ data }: Props) {
       {/* Your Top Tracks */}
       {topTracks.length > 0 && (
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>YOUR TOP TRACKS</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>YOUR TOP TRACKS</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {topTracks.slice(0, 5).map((t: any, i: number) => (
               <motion.div key={t.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
@@ -134,7 +134,7 @@ export default function DiscoveryPage({ data }: Props) {
 
       {/* Recommendations */}
       <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>RECOMMENDED · BASED ON YOUR DNA</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>RECOMMENDED · BASED ON YOUR DNA</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
           {defaultRecs.map((r, i) => (
             <a key={r.name} href={`https://open.spotify.com/search/artist%3A${encodeURIComponent(r.name)}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
