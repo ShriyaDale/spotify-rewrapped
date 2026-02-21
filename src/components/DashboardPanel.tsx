@@ -4,12 +4,14 @@ import DNAPage from './pages/DNAPage';
 import DiscoveryPage from './pages/DiscoveryPage';
 import WorldPage from './pages/WorldPage';
 import FuturePage from './pages/FuturePage';
+import ConcertRadar from './pages/ConcertRadar';
 
 const PAGES: Record<string, React.ComponentType<{ data: any }>> = {
   dna: DNAPage,
   discovery: DiscoveryPage,
   world: WorldPage,
   future: FuturePage,
+  concerts: ConcertRadar,
 };
 
 interface Props {
