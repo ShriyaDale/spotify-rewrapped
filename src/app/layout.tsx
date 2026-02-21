@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Better Wrapped: Vinyl Edition',
-  description: 'Your Spotify listening data as a vinyl record experience',
+  title: 'ReWrapped',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
