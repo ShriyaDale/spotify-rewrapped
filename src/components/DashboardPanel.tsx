@@ -7,8 +7,6 @@ import FuturePage from './pages/FuturePage';
 
 const PAGES: Record<string, React.ComponentType<{ data: any }>> = {
   dna: DNAPage,
-  // mood: MoodPage,
-  // intensity: IntensityPage,
   discovery: DiscoveryPage,
   world: WorldPage,
   future: FuturePage,
