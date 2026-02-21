@@ -153,7 +153,7 @@ export default function DiscoveryPage({ data }: Props) {
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'Georgia, serif' }}>{r.name}</span>
               </motion.div>
             </a>
-          ))}}
+          ))}
         </div>
       </div>
     </div>
