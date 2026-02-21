@@ -52,6 +52,17 @@ export const RECORDS = [
     spineColor: '#200440',
     rings: ['#200440', '#320860', '#4A1490', '#7030B0'],
   },
+  {
+    id: 'concerts',
+    title: 'CONCERT RADAR',
+    sub: 'Live Near You',
+    icon: '🎤',
+    color: '#1A0A3C',
+    accent: '#8B5CF6',
+    label: '#DDD6FE',
+    spineColor: '#0E0520',
+    rings: ['#0E0520', '#1A0A3C', '#2D1260', '#8B5CF6'],
+  },
 ];
 
 export type Record = typeof RECORDS[0];
