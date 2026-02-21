@@ -12,8 +12,8 @@ async function getToken(request: NextRequest) {
 
   if (!token && refresh) {
     const refreshed = await refreshAccessToken(refresh);
-    token = refreshed.access_token;
-    refreshedAccessToken = refreshed.access_token;
+    token = refreshed.access_token || undefined;
+    refreshedAccessToken = refreshed.access_token || null;
     refreshedRefreshToken = refreshed.refresh_token ?? null;
     expiresIn = refreshed.expires_in;
   }
@@ -110,10 +110,11 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
       if (error?.message === 'UNAUTHORIZED' && refresh) {
         const refreshed = await refreshAccessToken(refresh);
-        token = refreshed.access_token;
-        tokenState.refreshedAccessToken = refreshed.access_token;
+        token = refreshed.access_token || undefined;
+        tokenState.refreshedAccessToken = refreshed.access_token || null;
         tokenState.refreshedRefreshToken = refreshed.refresh_token ?? null;
         tokenState.expiresIn = refreshed.expires_in;
+        if (!token) throw new Error('Token refresh failed: no access token');
         apiResult = await loadData(token);
       } else {
         throw error;

@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
 
   if (!token && refresh) {
     const refreshed = await refreshAccessToken(refresh);
-    token = refreshed.access_token;
-    refreshedAccessToken = refreshed.access_token;
+    token = refreshed.access_token || undefined;
+    refreshedAccessToken = refreshed.access_token || null;
     refreshedRefreshToken = refreshed.refresh_token ?? null;
     refreshedExpiresIn = refreshed.expires_in;
   }
@@ -29,10 +29,11 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
       if (error?.message === 'UNAUTHORIZED' && refresh) {
         const refreshed = await refreshAccessToken(refresh);
-        token = refreshed.access_token;
-        refreshedAccessToken = refreshed.access_token;
+        token = refreshed.access_token || undefined;
+        refreshedAccessToken = refreshed.access_token || null;
         refreshedRefreshToken = refreshed.refresh_token ?? null;
         refreshedExpiresIn = refreshed.expires_in;
+        if (!token) throw new Error('Token refresh failed: no access token');
         results = await searchSpotify(token, q, 'track,artist', 10);
       } else {
         throw error;
