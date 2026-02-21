@@ -33,3 +33,26 @@ html, body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+
+/* Catch-all legibility pass — targets the most common muted patterns */
+[style*="rgba(255,255,255,0.5"],
+[style*="rgba(255,255,255,0.4"],
+[style*="rgba(255,255,255,0.3"],
+[style*="rgba(240,228,208,0.5"] {
+  color: rgba(255, 255, 255, 0.80) !important;
+}
+
+[style*="rgba(255,255,255,0.2"],
+[style*="rgba(255,255,255,0.1"] {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Base font size bump */
+html { font-size: 17px; }
+
+/* Georgia/serif body text specifically */
+p, .crimson, [style*="Georgia"] {
+  font-size: 1.08em;
+  letter-spacing: 0.01em;
+}

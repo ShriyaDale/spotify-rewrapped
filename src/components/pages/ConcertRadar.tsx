@@ -137,13 +137,14 @@ export default function ConcertRadar({ data }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
-        
+      <style>{`        
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse-dot { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+
+        .concert-input { font-family: 'Crimson Text', Georgia, serif; }
+        .concert-input::placeholder { color: rgba(255,255,255,0.25); font-style: italic; }
 
         .concert-input::placeholder { color: rgba(255,255,255,0.25); }
         .concert-input:focus { border-color: rgba(255,210,60,0.5) !important; box-shadow: 0 0 0 3px rgba(255,210,60,0.08); }
@@ -312,7 +313,7 @@ export default function ConcertRadar({ data }: Props) {
           <div style={{
             fontFamily: "'Bebas Neue', sans-serif",
             fontSize: 11,
-            color: activeCity ? 'rgba(255,210,60,0.7)' : 'rgba(255,255,255,0.4)',
+            color: activeCity ? 'rgba(255,210,60,0.7)' : 'rgba(255, 255, 255, 0.75)',
             letterSpacing: 3,
             marginBottom: 10,
             transition: 'color 0.2s',
@@ -381,7 +382,7 @@ export default function ConcertRadar({ data }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{
             fontFamily: "'Bebas Neue', sans-serif",
-            fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: 3,
+            fontSize: 11, color: 'rgba(255, 255, 255, 0.76)', letterSpacing: 3,
           }}>
             YOUR TOP ARTISTS
           </div>
@@ -389,7 +390,7 @@ export default function ConcertRadar({ data }: Props) {
             <div style={{
               fontFamily: "'Bebas Neue', sans-serif",
               fontSize: 11, letterSpacing: 2,
-              color: totalAll > 0 ? 'rgba(255,210,60,0.7)' : 'rgba(255,255,255,0.3)',
+              color: totalAll > 0 ? 'rgba(255,210,60,0.7)' : 'rgba(255, 255, 255, 0.56)',
             }}>
               {totalAll > 0 ? `${totalAll} SHOWS FOUND` : 'NO UPCOMING SHOWS'}
             </div>
@@ -713,7 +714,7 @@ function EmptyState({ activeCity, artistFilter }: { activeCity: string; artistFi
       <p style={{
         fontFamily: "'DM Sans', sans-serif",
         fontStyle: 'italic', fontWeight: 300,
-        fontSize: 12, color: 'rgba(255,255,255,0.25)',
+        fontSize: 12, color: 'rgba(255, 255, 255, 0.5)',
         margin: 0,
       }}>
         {activeCity ? 'Try clearing the city filter to see all tour dates.' : 'Check back soon — tours get announced frequently.'}
