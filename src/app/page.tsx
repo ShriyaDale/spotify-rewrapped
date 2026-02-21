@@ -67,7 +67,7 @@ export const RECORDS = [
 
 export type Record = typeof RECORDS[0];
 
-const PLAYER_HEIGHT = 560;
+const PLAYER_HEIGHT = 800;
 // CDs sit higher — near top third of turntable body
 const CAROUSEL_TOP = 130;
 
@@ -92,7 +92,7 @@ export default function Home() {
     setActiveRecord(record);
     setTimeout(() => {
       setIsLanding(false);
-      setTimeout(() => setShowPanel(true), 400);
+      setTimeout(() => setShowPanel(true), 1000);
     }, 1200);
   };
 
@@ -250,7 +250,7 @@ export default function Home() {
                 />
 
                 {/* Now playing */}
-                <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <AnimatePresence mode="wait">
                     {activeRecord && !isLanding ? (
                       <motion.div key={activeRecord.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ textAlign: 'center' }}>
@@ -264,13 +264,13 @@ export default function Home() {
                           {[0, 1, 2, 3, 4].map(i => (
                             <motion.div key={i} style={{ width: 2.5, background: '#1DB954', borderRadius: 2 }}
                               animate={{ height: [3, 16, 3] }}
-                              transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.13, ease: 'easeInOut' }}
+                              transition={{ repeat: Infinity, duration: 1.4, delay: i * 0.13, ease: 'easeInOut' }}
                             />
                           ))}
                         </div>
                       </motion.div>
                     ) : !activeRecord ? (
-                      <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <motion.div key="idle" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
                         <p style={{ color: 'rgb(252, 252, 252)', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 20, margin: 0 }}>
                           Click or drag a record on to the turntable to play
                         </p>

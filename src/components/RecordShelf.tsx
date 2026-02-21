@@ -128,8 +128,8 @@ export default function RecordShelf({ records, onRecordClick, activeId }: Props)
       <div style={{
         width: '100vw',
         overflow: 'hidden',
-        maskImage: 'linear-gradient(to right, transparent 0%, black 45%, black 60%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 45%, black 60%, transparent 100%)',
+        maskImage: 'linear-gradient(to right, transparent 0%, black 40%, black 60%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%, black 60%, transparent 100%)',
         paddingTop: 4,
         paddingBottom: 4,
       }}>

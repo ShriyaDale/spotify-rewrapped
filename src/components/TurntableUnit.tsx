@@ -217,7 +217,7 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
       </div>
 
       {/* Eject */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {activeRecord && !isLanding && (
           <motion.button
             initial={{ opacity: 0, y: 10 }}
@@ -237,7 +237,7 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
             whileHover={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff' }}
           >⏏ EJECT</motion.button>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </div>
   );
 }
