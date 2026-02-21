@@ -49,17 +49,17 @@ export default function Header({ authStatus, profile }: Props) {
               fontFamily: "'Playfair Display', serif",
             }}
           >
-            REWRAPPED
+            REWRAPPING
           </div>
           <div
             style={{
               color: 'rgba(255,255,255,0.3)',
-              fontSize: 9,
+              fontSize: 12,
               letterSpacing: 4,
               fontFamily: 'monospace',
             }}
           >
-            VINYL EDITION
+            YOUR MUSIC
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function Header({ authStatus, profile }: Props) {
           />
         )}
         {profile?.name && (
-          <span style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, fontFamily: 'Georgia, serif' }}>
+          <span style={{ color: 'white', fontSize: 13, fontFamily: 'Georgia, serif' }}>
             {profile.name}
           </span>
         )}
@@ -84,7 +84,7 @@ export default function Header({ authStatus, profile }: Props) {
             href="/api/auth/logout"
             style={{
               fontSize: 11,
-              color: 'rgba(255,255,255,0.3)',
+              color: 'white',
               fontFamily: 'monospace',
               letterSpacing: 1,
               textDecoration: 'none',

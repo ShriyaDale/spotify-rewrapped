@@ -60,7 +60,7 @@ export default function Home() {
 
       <main style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
-        paddingTop: 40, paddingBottom: 100,
+        paddingTop: 32, paddingBottom: 48,
         paddingLeft: 16, paddingRight: 16,
         gap: 0,
       }}>
@@ -249,16 +249,6 @@ export default function Home() {
                 >← BACK TO SHELF</button>
               </div>
               <DashboardPanel record={activeRecord} data={spotifyData} />
-            </motion.div>
-          ) : !activeRecord && !showPanel ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              style={{ textAlign: 'center', maxWidth: 280 }}
-            >
-              <div style={{ fontSize: 60, marginBottom: 16, opacity: 0.35 }}>🎵</div>
-            
             </motion.div>
           ) : null}
         </AnimatePresence>
