@@ -22,10 +22,12 @@ type FuturePayload = {
 };
 
 type LlmPrediction = { icon: string; text: string; confidence: number };
+type LlmRecommendation = { icon: string; song: string; artist: string };
 
 type LlmResponse = {
   summary: string;
   predictions: LlmPrediction[];
+  recommendations: LlmRecommendation[];
 };
 
 function clampConfidence(value: number) {
@@ -37,7 +39,9 @@ function coerceResponse(value: any): LlmResponse | null {
   if (!value || typeof value !== 'object') return null;
   const summary = typeof value.summary === 'string' ? value.summary.trim() : '';
   const predictions = Array.isArray(value.predictions) ? value.predictions : [];
-  const cleaned = predictions
+  const recommendations = Array.isArray(value.recommendations) ? value.recommendations : [];
+  
+  const cleanedPredictions = predictions
     .map((p: any) => ({
       icon: typeof p.icon === 'string' && p.icon.trim() ? p.icon.trim() : '✨',
       text: typeof p.text === 'string' ? p.text.trim() : '',
@@ -46,8 +50,21 @@ function coerceResponse(value: any): LlmResponse | null {
     .filter((p: any) => p.text.length > 0)
     .slice(0, 4);
 
-  if (!summary && cleaned.length === 0) return null;
-  return { summary, predictions: cleaned };
+  const cleanedRecommendations = recommendations
+    .map((r: any) => ({
+      icon: typeof r.icon === 'string' && r.icon.trim() ? r.icon.trim() : '🎵',
+      song: typeof r.song === 'string' ? r.song.trim() : '',
+      artist: typeof r.artist === 'string' ? r.artist.trim() : '',
+    }))
+    .filter((r: any) => r.song.length > 0 && r.artist.length > 0)
+    .slice(0, 5);
+
+  if (!summary && cleanedPredictions.length === 0 && cleanedRecommendations.length === 0) return null;
+  return { 
+    summary, 
+    predictions: cleanedPredictions, 
+    recommendations: cleanedRecommendations 
+  };
 }
 
 function extractJson(content: string) {
@@ -62,23 +79,29 @@ function extractJson(content: string) {
   }
 }
 
+
+
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ enabled: false });
+    console.error('[Future API] GROQ_API_KEY not set');
+    return NextResponse.json({ error: 'api_key_missing' }, { status: 500 });
   }
 
   let payload: FuturePayload;
   try {
     payload = await request.json();
-  } catch {
+  } catch (err) {
+    console.error('[Future API] Failed to parse request:', err);
     return NextResponse.json({ error: 'invalid_payload' }, { status: 400 });
   }
 
   const system =
     'You are a music analyst predicting a listener\'s next-year taste. ' +
-    'Return only valid JSON with keys: summary (string) and predictions (array of 3-4 items). ' +
+    'Return only valid JSON with keys: summary (string), predictions (array of 3-4 insight objects), and recommendations (array of 3-5 song/artist recommendations). ' +
     'Each prediction must include icon (single emoji), text (1 sentence), confidence (0 to 1). ' +
+    'Each recommendation must include icon (single emoji), song (string), artist (string). ' +
+    'Base recommendations on their current top artists/genres and taste drift. ' +
     'No markdown, no extra text.';
 
   const user = {
@@ -90,40 +113,58 @@ export async function POST(request: NextRequest) {
     topTracks: payload.topTracks,
   };
 
-  const model = process.env.GEMINI_MODEL ?? 'gemini-1.5-flash';
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: `${system}\n\nUSER_DATA:\n${JSON.stringify(user)}` },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 350,
+  const model = process.env.GROQ_MODEL ?? 'mixtral-8x7b-32768';
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-    }),
-  });
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: 'system',
+            content: system,
+          },
+          {
+            role: 'user',
+            content: `USER_DATA:\n${JSON.stringify(user)}`,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 350,
+      }),
+    });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    return NextResponse.json({ error: 'gemini_failed', detail: errorText }, { status: 502 });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Future API] Groq API error:', response.status, errorText);
+      return NextResponse.json({
+        error: 'groq_failed',
+        status: response.status,
+        detail: errorText,
+      }, { status: 502 });
+    }
+
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content ?? '';
+    const parsed = coerceResponse(extractJson(String(content)) ?? null);
+
+    if (!parsed) {
+      console.warn('[Future API] No valid response from Groq');
+      return NextResponse.json({ enabled: true, summary: '', predictions: [], recommendations: [] });
+    }
+
+    return NextResponse.json({ enabled: true, ...parsed });
+  } catch (err) {
+    console.error('[Future API] Request failed:', err);
+    return NextResponse.json({
+      error: 'request_failed',
+      detail: err instanceof Error ? err.message : 'Unknown error',
+    }, { status: 500 });
   }
-
-  const data = await response.json();
-  const content = (data?.candidates?.[0]?.content?.parts ?? [])
-    .map((part: any) => part?.text ?? '')
-    .join('');
-  const parsed = coerceResponse(extractJson(String(content)) ?? null);
-
-  if (!parsed) {
-    return NextResponse.json({ enabled: true, summary: '', predictions: [] });
-  }
-
-  return NextResponse.json({ enabled: true, ...parsed });
 }

@@ -153,7 +153,7 @@ export default function MoodIntensityPage({ data }: Props) {
     .slice(0, 6)
     .join(', ');
 
-  const W = 220, cx = 110, cy = 110, R = 85;
+  const W = 260, cx = 130, cy = 130, R = 88;
   const axes = [
     { l: 'Valence', v: mood.valence ?? 0.5, a: -90, col: '#FFD700' },
     { l: 'Energy', v: mood.energy ?? 0.5, a: -18, col: '#FF6B6B' },
@@ -172,7 +172,7 @@ export default function MoodIntensityPage({ data }: Props) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Top Row: Helix + DNA Indices + Radar */}
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr 280px', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
         {/* Helix */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>SONIC HELIX</div>
@@ -198,9 +198,9 @@ export default function MoodIntensityPage({ data }: Props) {
         </div>
 
         {/* Radar */}
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'visible' }}>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 8 }}>MOOD RADAR</div>
-          <svg width={W} height={W} viewBox={`0 0 ${W} ${W}`}>
+          <svg width="100%" height="100%" viewBox={`0 0 ${W} ${W}`} style={{ maxWidth: 260, maxHeight: 260, overflow: 'visible' }}>
             {[0.25, 0.5, 0.75, 1].map((s, i) => (
               <polygon key={i}
                 points={axes.map((a) => toXY(a.a, R * s)).map((p) => `${p.x},${p.y}`).join(' ')}
@@ -217,7 +217,7 @@ export default function MoodIntensityPage({ data }: Props) {
               style={{ transformOrigin: `${cx}px ${cy}px` }}
               transition={{ duration: 0.9, ease: 'easeOut' }} />
             {axes.map((a) => {
-              const lp = toXY(a.a, R + 22);
+              const lp = toXY(a.a, R + 24);
               return (
                 <text key={a.l} x={lp.x} y={lp.y} textAnchor="middle"
                   fill={a.col} fontSize="10" fontFamily="Georgia, serif" opacity="0.9">{a.l}</text>
@@ -228,7 +228,7 @@ export default function MoodIntensityPage({ data }: Props) {
       </div>
 
       {/* Bottom Row: Mood Stats + Top Tracks */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
         {/* Mood Stats */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>

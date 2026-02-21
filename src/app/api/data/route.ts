@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMe, getTopArtists, getTopTracks, getRecentlyPlayed, refreshAccessToken } from '@/lib/spotify';
+import { getMe, getTopArtists, getTopTracks, getRecentlyPlayed, refreshAccessToken, getAudioFeatures } from '@/lib/spotify';
 import { computeGenreMix, computeIntensity, computeDrift, buildCountryAvailability, generatePredictions } from '@/lib/analytics';
 import { setSpotifyAuthCookies } from '@/lib/spotifyAuth';
 
@@ -78,7 +78,12 @@ function computeMoodFromAvailable(tracks: any[], artists: any[], recentItems: an
   ).size;
   const variety = Math.min(1, uniqueArtists / 20);
 
-  return { valence, energy, danceability, acousticness, variety, avgPop: avgPop / 100 };
+  // Tempo: average BPM from tracks if available, fallback to genre estimation
+  const tempoFromTracks = tracks.length 
+    ? tracks.reduce((sum: number, t: any) => sum + (t.tempo || 120), 0) / tracks.length 
+    : 120;
+
+  return { valence, energy, danceability, acousticness, variety, avgPop: avgPop / 100, tempo: tempoFromTracks };
 }
 
 export async function GET(request: NextRequest) {
@@ -117,10 +122,55 @@ export async function GET(request: NextRequest) {
 
     const [profile, shortArtists, medArtists, longArtists, shortTracks, longTracks, recent] = apiResult;
 
-    const dnaIndices = computeDNAFromAvailable(shortTracks.items, shortArtists.items);
-    const shortAvg = computeMoodFromAvailable(shortTracks.items, shortArtists.items, recent.items || []);
-    const longAvg = computeMoodFromAvailable(longTracks.items, longArtists.items, recent.items || []);
+    // Fetch audio features for accurate tempo/audio data
+    const shortTrackIds = shortTracks.items.map((t: any) => t.id).filter(Boolean);
+    const longTrackIds = longTracks.items.map((t: any) => t.id).filter(Boolean);
+    
+    let shortFeatures = { audio_features: [] };
+    let longFeatures = { audio_features: [] };
+    
+    try {
+      [shortFeatures, longFeatures] = await Promise.all([
+        shortTrackIds.length > 0 ? getAudioFeatures(token, shortTrackIds) : Promise.resolve({ audio_features: [] }),
+        longTrackIds.length > 0 ? getAudioFeatures(token, longTrackIds) : Promise.resolve({ audio_features: [] }),
+      ]);
+    } catch (error) {
+      console.error('Failed to fetch audio features:', error);
+      // Continue without audio features if fetch fails
+    }
+
+    // Attach features to tracks, ensuring all audio properties are included
+    const shortTracksWithFeatures = shortTracks.items.map((t: any) => {
+      const features = shortFeatures.audio_features?.find((f: any) => f?.id === t.id);
+      return {
+        ...t,
+        ...(features || {}),
+        // Ensure tempo defaults to 120 if not found
+        tempo: features?.tempo ?? t.tempo ?? 120,
+      };
+    });
+    
+    const longTracksWithFeatures = longTracks.items.map((t: any) => {
+      const features = longFeatures.audio_features?.find((f: any) => f?.id === t.id);
+      return {
+        ...t,
+        ...(features || {}),
+        // Ensure tempo defaults to 120 if not found
+        tempo: features?.tempo ?? t.tempo ?? 120,
+      };
+    });
+
+    console.log('[data-route] Short term - first track tempo:', shortTracksWithFeatures[0]?.tempo);
+    console.log('[data-route] Long term - first track tempo:', longTracksWithFeatures[0]?.tempo);
+
+    const dnaIndices = computeDNAFromAvailable(shortTracksWithFeatures, shortArtists.items);
+    const shortAvg = computeMoodFromAvailable(shortTracksWithFeatures, shortArtists.items, recent.items || []);
+    const longAvg = computeMoodFromAvailable(longTracksWithFeatures, longArtists.items, recent.items || []);
+    
+    console.log('[data-route] Short avg:', shortAvg);
+    console.log('[data-route] Long avg:', longAvg);
     const drift = computeDrift(shortAvg, longAvg);
+    console.log('[data-route] Calculated drift:', drift);
     const shortGenres = computeGenreMix(shortArtists.items).map((g: any) => g.name);
     const longGenres = computeGenreMix(longArtists.items).map((g: any) => g.name);
     const predictions = generatePredictions(drift, shortGenres, longGenres);
