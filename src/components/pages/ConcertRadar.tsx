@@ -17,7 +17,6 @@ async function fetchFromTicketmaster(artists: string[], city?: string): Promise<
     artists: artists.join(','),
     ...(city ? { location: city } : {}),
   });
-
   const res = await fetch(`/api/concerts?${params}`);
   if (!res.ok) throw new Error('API request failed');
   const data = await res.json();
@@ -45,7 +44,6 @@ export default function ConcertRadar({ data }: Props) {
   const [searchedArtistFilter, setSearchedArtistFilter] = useState<string | null>(null);
 
   const cityDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const topArtists: string[] = (data?.artists || []).map((a: any) => a.name).slice(0, 10);
 
   useEffect(() => {
@@ -59,15 +57,10 @@ export default function ConcertRadar({ data }: Props) {
     setError('');
     try {
       const events = await fetchFromTicketmaster(topArtists, city || undefined);
-      if (!city) {
-        setAllEvents(events);
-        setTotalAll(events.length);
-      }
+      if (!city) { setAllEvents(events); setTotalAll(events.length); }
       setDisplayEvents(events);
       if (city) setTotalAll(allEvents.length);
-    } catch {
-      setError('Could not load concert data.');
-    }
+    } catch { setError('Could not load concert data.'); }
     setLoading(false);
     setSearching(false);
   };
@@ -92,31 +85,21 @@ export default function ConcertRadar({ data }: Props) {
         setSearchedArtistFilter(trimmed);
         setArtistSearchInput('');
       }
-    } catch {
-      setArtistSearchError('Could not search for that artist.');
-    }
+    } catch { setArtistSearchError('Could not search for that artist.'); }
     setArtistSearchLoading(false);
   };
 
   const handleLocationChange = (val: string) => {
     setLocationInput(val);
     if (cityDebounceRef.current) clearTimeout(cityDebounceRef.current);
-    if (!val.trim()) {
-      setActiveCity('');
-      setDisplayEvents(allEvents);
-      return;
-    }
+    if (!val.trim()) { setActiveCity(''); setDisplayEvents(allEvents); return; }
     cityDebounceRef.current = setTimeout(() => {
       setActiveCity(val.trim());
       fetchTopArtistEvents(val.trim());
     }, 600);
   };
 
-  const clearCity = () => {
-    setLocationInput('');
-    setActiveCity('');
-    setDisplayEvents(allEvents);
-  };
+  const clearCity = () => { setLocationInput(''); setActiveCity(''); setDisplayEvents(allEvents); };
 
   const removeSearchedArtist = (name: string) => {
     setSearchedArtists(prev => prev.filter(a => a !== name));
@@ -145,122 +128,274 @@ export default function ConcertRadar({ data }: Props) {
     const diff = new Date(dateStr).getTime() - Date.now();
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
     if (days < 0) return null;
-    if (days === 0) return 'TODAY';
-    if (days === 1) return 'TOMORROW';
-    if (days < 7) return `${days}d`;
-    if (days < 30) return `${Math.floor(days / 7)}w`;
-    return `${Math.floor(days / 30)}mo`;
+    if (days === 0) return { label: 'TONIGHT', urgent: true };
+    if (days === 1) return { label: 'TOMORROW', urgent: true };
+    if (days < 7) return { label: `${days} DAYS`, urgent: true };
+    if (days < 30) return { label: `${Math.floor(days / 7)}W AWAY`, urgent: false };
+    return { label: `${Math.floor(days / 30)}MO`, urgent: false };
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse-dot { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
 
-      {/* Artist search */}
-      <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 14 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>
-          SEARCH ANY ARTIST
+        .concert-input::placeholder { color: rgba(255,255,255,0.25); }
+        .concert-input:focus { border-color: rgba(255,210,60,0.5) !important; box-shadow: 0 0 0 3px rgba(255,210,60,0.08); }
+
+        .artist-pill:hover { transform: translateY(-1px); }
+        .artist-pill-active { background: rgba(255,210,60,0.15) !important; border-color: rgba(255,210,60,0.6) !important; }
+
+        .event-row:hover .event-row-inner {
+          background: rgba(255,210,60,0.06) !important;
+          border-color: rgba(255,210,60,0.25) !important;
+        }
+        .event-row:hover .event-arrow { opacity: 1 !important; transform: translateX(0) !important; }
+        .event-row:hover .date-badge { background: rgba(255,210,60,0.2) !important; }
+
+        .search-btn:hover:not(:disabled) { background: rgba(255,210,60,0.25) !important; }
+        .clear-btn:hover { background: rgba(255,255,255,0.12) !important; }
+
+        .ticker-wrap { overflow: hidden; }
+        .ticker-inner { display: flex; white-space: nowrap; animation: ticker 30s linear infinite; }
+      `}</style>
+
+      {/* Live ticker strip */}
+      {!loading && allEvents.length > 0 && (
+        <div style={{
+          background: 'rgba(255,210,60,0.12)',
+          border: '1px solid rgba(255,210,60,0.2)',
+          borderRadius: 8,
+          padding: '8px 0',
+          overflow: 'hidden',
+        }}>
+          <div className="ticker-wrap">
+            <div className="ticker-inner">
+              {[...allEvents, ...allEvents].map((e, i) => (
+                <span key={i} style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: 13,
+                  color: 'rgba(255,210,60,0.8)',
+                  letterSpacing: 2,
+                  paddingRight: 40,
+                }}>
+                  {e.artist.toUpperCase()} · {e.city}
+                  <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 16px' }}>✦</span>
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-        <form onSubmit={e => { e.preventDefault(); handleArtistSearch(artistSearchInput); }} style={{ display: 'flex', gap: 8 }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <input
-              value={artistSearchInput}
-              onChange={e => setArtistSearchInput(e.target.value)}
-              placeholder="e.g. Radiohead, Charli XCX, Fred again.."
+      )}
+
+      {/* Search row: artist + city side by side */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {/* Artist search */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 14,
+          padding: 16,
+        }}>
+          <div style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: 11,
+            color: 'rgba(255,210,60,0.7)',
+            letterSpacing: 3,
+            marginBottom: 10,
+          }}>
+            🔍 SEARCH ANY ARTIST
+          </div>
+          <form onSubmit={e => { e.preventDefault(); handleArtistSearch(artistSearchInput); }} style={{ display: 'flex', gap: 8 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <input
+                className="concert-input"
+                value={artistSearchInput}
+                onChange={e => setArtistSearchInput(e.target.value)}
+                placeholder="Artist name..."
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 8, padding: '9px 12px',
+                  color: 'white', fontSize: 13,
+                  outline: 'none',
+                  fontFamily: "'DM Sans', sans-serif",
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                }}
+              />
+              {artistSearchLoading && (
+                <div style={{
+                  position: 'absolute', right: 10, top: '50%', marginTop: -6,
+                  width: 12, height: 12, borderRadius: '50%',
+                  border: '2px solid rgba(255,210,60,0.6)',
+                  borderTopColor: 'transparent',
+                  animation: 'spin 0.7s linear infinite',
+                }} />
+              )}
+            </div>
+            <button
+              className="search-btn"
+              type="submit"
+              disabled={!artistSearchInput.trim() || artistSearchLoading}
               style={{
-                width: '100%', boxSizing: 'border-box',
-                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 10, padding: '10px 14px', color: 'white', fontSize: 12,
-                outline: 'none', fontFamily: 'Georgia, serif',
+                padding: '0 14px', borderRadius: 8, border: 'none',
+                background: artistSearchInput.trim() ? 'rgba(255,210,60,0.15)' : 'rgba(255,255,255,0.04)',
+                color: artistSearchInput.trim() ? 'rgba(255,210,60,0.9)' : 'rgba(255,255,255,0.2)',
+                fontSize: 11, cursor: artistSearchInput.trim() ? 'pointer' : 'default',
+                fontFamily: "'Bebas Neue', sans-serif",
+                letterSpacing: 2, flexShrink: 0, transition: 'all 0.15s',
               }}
-            />
-            {artistSearchLoading && <Spinner />}
-          </div>
-          <button
-            type="submit"
-            disabled={!artistSearchInput.trim() || artistSearchLoading}
-            style={{
-              padding: '0 16px', borderRadius: 10, border: 'none',
-              background: artistSearchInput.trim() ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.06)',
-              color: artistSearchInput.trim() ? 'white' : 'rgba(255,255,255,0.25)',
-              fontSize: 11, cursor: artistSearchInput.trim() ? 'pointer' : 'default',
-              fontFamily: 'monospace', letterSpacing: 1, flexShrink: 0, transition: 'all 0.15s',
-            }}
-          >
-            SEARCH
-          </button>
-        </form>
+            >GO</button>
+          </form>
+          {artistSearchError && (
+            <div style={{ fontSize: 11, color: 'rgba(255,100,80,0.8)', fontFamily: "'DM Sans', sans-serif", marginTop: 8 }}>
+              {artistSearchError}
+            </div>
+          )}
+          {searchedArtists.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 10 }}>
+              {searchedArtists.map(name => {
+                const isActive = searchedArtistFilter === name;
+                const count = searchedEvents.filter(e => e.artist === name).length;
+                return (
+                  <div key={name} style={{ display: 'flex', alignItems: 'center' }}>
+                    <button
+                      onClick={() => setSearchedArtistFilter(isActive ? null : name)}
+                      style={{
+                        padding: '4px 8px 4px 10px', borderRadius: '20px 0 0 20px',
+                        border: `1px solid ${isActive ? 'rgba(255,210,60,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                        borderRight: 'none',
+                        cursor: 'pointer',
+                        background: isActive ? 'rgba(255,210,60,0.12)' : 'rgba(255,255,255,0.04)',
+                        display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s',
+                      }}
+                    >
+                      <span style={{ fontSize: 11, color: isActive ? 'rgba(255,210,60,0.95)' : 'rgba(255,255,255,0.7)', fontFamily: "'DM Sans', sans-serif" }}>{name}</span>
+                      <span style={{
+                        fontSize: 9, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: 1,
+                        color: isActive ? 'rgba(255,210,60,0.7)' : 'rgba(255,255,255,0.3)',
+                      }}>{count}</span>
+                    </button>
+                    <button
+                      onClick={() => removeSearchedArtist(name)}
+                      style={{
+                        width: 22, height: 26, borderRadius: '0 20px 20px 0',
+                        border: `1px solid ${isActive ? 'rgba(255,210,60,0.5)' : 'rgba(255,255,255,0.1)'}`,
+                        cursor: 'pointer',
+                        background: isActive ? 'rgba(255,210,60,0.08)' : 'rgba(255,255,255,0.03)',
+                        color: 'rgba(255,255,255,0.3)', fontSize: 12,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.15s',
+                      }}
+                    >×</button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-        {artistSearchError && (
-          <div style={{ fontSize: 10, color: 'rgba(255,120,120,0.7)', fontFamily: 'monospace', marginTop: 8 }}>
-            {artistSearchError}
+        {/* City filter */}
+        <div style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: `1px solid ${activeCity ? 'rgba(255,210,60,0.25)' : 'rgba(255,255,255,0.08)'}`,
+          borderRadius: 14,
+          padding: 16,
+          transition: 'border-color 0.2s',
+        }}>
+          <div style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: 11,
+            color: activeCity ? 'rgba(255,210,60,0.7)' : 'rgba(255,255,255,0.4)',
+            letterSpacing: 3,
+            marginBottom: 10,
+            transition: 'color 0.2s',
+          }}>
+            📍 FILTER BY CITY
           </div>
-        )}
-
-        {searchedArtists.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
-            {searchedArtists.map(name => {
-              const isActive = searchedArtistFilter === name;
-              const count = searchedEvents.filter(e => e.artist === name).length;
-              return (
-                <div key={name} style={{ display: 'flex', alignItems: 'center' }}>
-                  <button
-                    onClick={() => setSearchedArtistFilter(isActive ? null : name)}
-                    style={{
-                      padding: '5px 8px 5px 10px', borderRadius: '20px 0 0 20px', border: 'none',
-                      cursor: 'pointer', background: isActive ? 'rgba(139,92,246,0.35)' : 'rgba(139,92,246,0.1)',
-                      outline: `1px solid ${isActive ? 'rgba(139,92,246,0.6)' : 'rgba(139,92,246,0.25)'}`,
-                      outlineOffset: -1, display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s',
-                    }}
-                  >
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#8B5CF6', flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', fontFamily: 'Georgia, serif' }}>{name}</span>
-                    <span style={{ fontSize: 9, fontFamily: 'monospace', color: 'rgba(139,92,246,0.8)', background: 'rgba(139,92,246,0.15)', padding: '1px 5px', borderRadius: 8 }}>{count}</span>
-                  </button>
-                  <button
-                    onClick={() => removeSearchedArtist(name)}
-                    style={{
-                      width: 24, minHeight: 28, borderRadius: '0 20px 20px 0', border: 'none',
-                      cursor: 'pointer', background: isActive ? 'rgba(139,92,246,0.25)' : 'rgba(139,92,246,0.07)',
-                      outline: `1px solid ${isActive ? 'rgba(139,92,246,0.6)' : 'rgba(139,92,246,0.25)'}`,
-                      outlineOffset: -1, color: 'rgba(255,255,255,0.35)', fontSize: 11,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s',
-                    }}
-                  >×</button>
-                </div>
-              );
-            })}
-            {searchedArtistFilter && (
-              <button onClick={() => setSearchedArtistFilter(null)} style={{ padding: '5px 10px', borderRadius: 20, border: 'none', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.35)', fontSize: 10, cursor: 'pointer', fontFamily: 'monospace' }}>
-                ALL
-              </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <input
+                className="concert-input"
+                value={locationInput}
+                onChange={e => handleLocationChange(e.target.value)}
+                placeholder="City or region..."
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${activeCity ? 'rgba(255,210,60,0.3)' : 'rgba(255,255,255,0.1)'}`,
+                  borderRadius: 8, padding: '9px 12px',
+                  color: 'white', fontSize: 13,
+                  outline: 'none',
+                  fontFamily: "'DM Sans', sans-serif",
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                }}
+              />
+              {searching && (
+                <div style={{
+                  position: 'absolute', right: 10, top: '50%', marginTop: -6,
+                  width: 12, height: 12, borderRadius: '50%',
+                  border: '2px solid rgba(255,210,60,0.6)',
+                  borderTopColor: 'transparent',
+                  animation: 'spin 0.7s linear infinite',
+                }} />
+              )}
+            </div>
+            {activeCity && (
+              <button className="clear-btn" onClick={clearCity} style={{
+                padding: '0 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)',
+                fontSize: 11, cursor: 'pointer',
+                fontFamily: "'Bebas Neue', sans-serif", letterSpacing: 1,
+                flexShrink: 0, transition: 'all 0.15s',
+              }}>CLEAR</button>
             )}
           </div>
-        )}
+          {activeCity && (
+            <div style={{
+              fontSize: 11, marginTop: 8,
+              fontFamily: "'DM Sans', sans-serif",
+              color: filteredTop.length === 0 ? 'rgba(255,100,80,0.7)' : 'rgba(255,210,60,0.7)',
+            }}>
+              {filteredTop.length === 0
+                ? `No shows near "${activeCity}"`
+                : `${filteredTop.length} show${filteredTop.length !== 1 ? 's' : ''} near ${activeCity}`}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Searched artist timeline */}
-      <AnimatePresence>
-        {searchedEvents.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-            style={{ background: 'rgba(139,92,246,0.04)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 20 }}
-          >
-            <div style={{ fontSize: 9, color: 'rgba(139,92,246,0.7)', letterSpacing: 3, fontFamily: 'monospace' }}>
-              SEARCHED ARTISTS — {filteredSearched.length} SHOWS
+      {/* Artist pills */}
+      <div style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: 14,
+        padding: 16,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: 11, color: 'rgba(255,255,255,0.4)', letterSpacing: 3,
+          }}>
+            YOUR TOP ARTISTS
+          </div>
+          {!loading && (
+            <div style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: 11, letterSpacing: 2,
+              color: totalAll > 0 ? 'rgba(255,210,60,0.7)' : 'rgba(255,255,255,0.3)',
+            }}>
+              {totalAll > 0 ? `${totalAll} SHOWS FOUND` : 'NO UPCOMING SHOWS'}
             </div>
-            {Object.entries(groupByMonth(filteredSearched)).map(([month, monthEvents]) => (
-              <MonthGroup key={month} month={month} events={monthEvents} daysUntil={daysUntil} />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Top artists pills */}
-      <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 14 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>
-          YOUR TOP {topArtists.length} ARTISTS · {loading ? '...' : `${totalAll} SHOWS IN NEXT 12 MONTHS`}
+          )}
         </div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           {topArtists.map((name) => {
             const count = artistEventCount[name] || 0;
             const isActive = artistFilter === name;
@@ -268,19 +403,37 @@ export default function ConcertRadar({ data }: Props) {
             return (
               <button
                 key={name}
+                className={`artist-pill ${isActive ? 'artist-pill-active' : ''}`}
                 onClick={() => setArtistFilter(isActive ? null : name)}
                 style={{
-                  padding: '5px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  background: isActive ? 'rgba(139,92,246,0.35)' : touring ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.04)',
-                  outline: `1px solid ${isActive ? 'rgba(139,92,246,0.6)' : touring ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                  padding: '6px 12px', borderRadius: 100,
+                  border: `1px solid ${isActive ? 'rgba(255,210,60,0.6)' : touring ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)'}`,
+                  cursor: 'pointer',
+                  background: isActive ? 'rgba(255,210,60,0.15)' : touring ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+                  display: 'flex', alignItems: 'center', gap: 7,
                   transition: 'all 0.15s',
                 }}
               >
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: touring ? '#8B5CF6' : 'rgba(255,255,255,0.18)', flexShrink: 0 }} />
-                <span style={{ fontSize: 11, color: touring ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.35)', fontFamily: 'Georgia, serif' }}>{name}</span>
+                {/* Live indicator dot */}
+                <div style={{
+                  width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                  background: touring ? (isActive ? '#FFD23C' : 'rgba(255,210,60,0.6)') : 'rgba(255,255,255,0.15)',
+                  animation: touring ? 'pulse-dot 2s ease-in-out infinite' : 'none',
+                }} />
+                <span style={{
+                  fontSize: 12,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 500,
+                  color: isActive ? 'rgba(255,210,60,0.95)' : touring ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.3)',
+                  letterSpacing: 0.2,
+                }}>{name}</span>
                 {count > 0 && (
-                  <span style={{ fontSize: 9, fontFamily: 'monospace', color: 'rgba(139,92,246,0.8)', background: 'rgba(139,92,246,0.15)', padding: '1px 5px', borderRadius: 8 }}>{count}</span>
+                  <span style={{
+                    fontSize: 10, fontFamily: "'Bebas Neue', sans-serif", letterSpacing: 1,
+                    color: isActive ? 'rgba(255,210,60,0.8)' : 'rgba(255,255,255,0.35)',
+                    background: isActive ? 'rgba(255,210,60,0.12)' : 'rgba(255,255,255,0.06)',
+                    padding: '1px 6px', borderRadius: 10,
+                  }}>{count}</span>
                 )}
               </button>
             );
@@ -288,147 +441,220 @@ export default function ConcertRadar({ data }: Props) {
         </div>
       </div>
 
-      {/* City filter */}
-      <div style={{
-        background: 'rgba(255,255,255,0.025)',
-        border: `1px solid ${activeCity ? 'rgba(139,92,246,0.35)' : 'rgba(255,255,255,0.07)'}`,
-        borderRadius: 14, padding: 14, transition: 'border-color 0.2s',
-      }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>
-          FILTER BY CITY
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <input
-              value={locationInput}
-              onChange={e => handleLocationChange(e.target.value)}
-              placeholder="Search city, region, or country..."
-              style={{
-                width: '100%', boxSizing: 'border-box',
-                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 10, padding: '10px 14px', color: 'white', fontSize: 12,
-                outline: 'none', fontFamily: 'Georgia, serif',
-              }}
+      {/* Searched artist results */}
+      <AnimatePresence>
+        {searchedEvents.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+          >
+            <SectionBlock
+              label="SEARCHED ARTISTS"
+              accent="rgba(180,130,255,0.7)"
+              accentBg="rgba(140,80,255,0.06)"
+              accentBorder="rgba(140,80,255,0.2)"
+              count={filteredSearched.length}
+              events={filteredSearched}
+              daysUntil={daysUntil}
+              groupByMonth={groupByMonth}
             />
-            {searching && <Spinner />}
-          </div>
-          {activeCity && (
-            <button onClick={clearCity} style={{ padding: '0 14px', height: 40, borderRadius: 10, border: 'none', background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.5)', fontSize: 11, cursor: 'pointer', fontFamily: 'monospace', flexShrink: 0 }}>
-              CLEAR
-            </button>
-          )}
-        </div>
-        {activeCity && (
-          <div style={{ fontSize: 10, color: 'rgba(139,92,246,0.7)', fontFamily: 'monospace', marginTop: 8 }}>
-            {filteredTop.length === 0 ? `No shows near "${activeCity}"` : `${filteredTop.length} show${filteredTop.length !== 1 ? 's' : ''} near "${activeCity}"`}
-          </div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
 
-      {/* Top artist timeline */}
+      {/* Main timeline */}
       {loading ? (
         <LoadingState />
       ) : error ? (
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 20, textAlign: 'center' }}>
-          <p style={{ color: 'rgba(255,100,100,0.7)', fontFamily: 'monospace', fontSize: 11, margin: 0 }}>{error}</p>
+        <div style={{ background: 'rgba(255,60,60,0.06)', border: '1px solid rgba(255,60,60,0.15)', borderRadius: 14, padding: 20, textAlign: 'center' }}>
+          <p style={{ color: 'rgba(255,100,80,0.8)', fontFamily: "'DM Sans', sans-serif", fontSize: 13, margin: 0 }}>{error}</p>
         </div>
       ) : filteredTop.length === 0 ? (
         <EmptyState activeCity={activeCity} artistFilter={artistFilter} />
       ) : (
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: 3, fontFamily: 'monospace' }}>
-            {activeCity
-              ? `SHOWS NEAR ${activeCity.toUpperCase()} — ${filteredTop.length} FOUND`
-              : artistFilter
-              ? `${artistFilter.toUpperCase()} — ${filteredTop.length} UPCOMING SHOWS`
-              : `ALL UPCOMING SHOWS — ${filteredTop.length} ACROSS ${Object.keys(groupByMonth(filteredTop)).length} MONTHS`}
-          </div>
-          {Object.entries(groupByMonth(filteredTop)).map(([month, monthEvents]) => (
-            <MonthGroup key={month} month={month} events={monthEvents} daysUntil={daysUntil} />
-          ))}
-        </div>
+        <SectionBlock
+          label={activeCity ? `NEAR ${activeCity.toUpperCase()}` : artistFilter ? artistFilter.toUpperCase() : 'ALL UPCOMING SHOWS'}
+          accent="rgba(255,210,60,0.7)"
+          accentBg="rgba(255,255,255,0.02)"
+          accentBorder="rgba(255,255,255,0.08)"
+          count={filteredTop.length}
+          events={filteredTop}
+          daysUntil={daysUntil}
+          groupByMonth={groupByMonth}
+        />
       )}
-
-      <style>{`@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }`}</style>
     </div>
   );
 }
 
-function Spinner() {
+function SectionBlock({ label, accent, accentBg, accentBorder, count, events, daysUntil, groupByMonth }: {
+  label: string;
+  accent: string;
+  accentBg: string;
+  accentBorder: string;
+  count: number;
+  events: ConcertEvent[];
+  daysUntil: (d: string) => { label: string; urgent: boolean } | null;
+  groupByMonth: (events: ConcertEvent[]) => Record<string, ConcertEvent[]>;
+}) {
   return (
-    <div style={{
-      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-      width: 12, height: 12, borderRadius: '50%',
-      border: '2px solid rgba(139,92,246,0.6)', borderTopColor: 'transparent',
-      animation: 'spin 0.7s linear infinite',
-    }} />
+    <div style={{ background: accentBg, border: `1px solid ${accentBorder}`, borderRadius: 14, overflow: 'hidden' }}>
+      {/* Section header */}
+      <div style={{
+        padding: '12px 16px',
+        borderBottom: `1px solid ${accentBorder}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 13, letterSpacing: 3, color: accent }}>
+          {label}
+        </span>
+        <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 11, letterSpacing: 2, color: 'rgba(255,255,255,0.25)' }}>
+          {count} SHOW{count !== 1 ? 'S' : ''}
+        </span>
+      </div>
+
+      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {Object.entries(groupByMonth(events)).map(([month, monthEvents]) => (
+          <MonthGroup key={month} month={month} events={monthEvents} daysUntil={daysUntil} accent={accent} />
+        ))}
+      </div>
+    </div>
   );
 }
 
-function MonthGroup({ month, events, daysUntil }: {
+function MonthGroup({ month, events, daysUntil, accent }: {
   month: string;
   events: ConcertEvent[];
-  daysUntil: (d: string) => string | null;
+  daysUntil: (d: string) => { label: string; urgent: boolean } | null;
+  accent: string;
 }) {
   return (
     <div>
-      <div style={{ fontSize: 9, color: 'rgba(139,92,246,0.6)', letterSpacing: 2, fontFamily: 'monospace', marginBottom: 8, paddingBottom: 6, borderBottom: '1px solid rgba(139,92,246,0.12)' }}>
-        {month.toUpperCase()}
+      {/* Month divider */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+        <span style={{
+          fontFamily: "'Bebas Neue', sans-serif",
+          fontSize: 12, letterSpacing: 4,
+          color: 'rgba(255,255,255,0.25)',
+        }}>
+          {month.toUpperCase()}
+        </span>
+        <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <AnimatePresence>
           {events.map((e, i) => {
             const days = daysUntil(e.date);
-            if (days === null) return null;
+            if (!days) return null;
+            const d = new Date(e.date);
             return (
-              <motion.a
+              <motion.div
                 key={`${e.artist}-${e.date}-${e.venue}`}
-                href={e.url || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.03 }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '10px 12px', borderRadius: 10,
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                  textDecoration: 'none', transition: 'background 0.15s, border-color 0.15s',
-                }}
-                onMouseEnter={el => {
-                  (el.currentTarget as HTMLElement).style.background = 'rgba(139,92,246,0.08)';
-                  (el.currentTarget as HTMLElement).style.borderColor = 'rgba(139,92,246,0.2)';
-                }}
-                onMouseLeave={el => {
-                  (el.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)';
-                  (el.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)';
-                }}
+                className="event-row"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.04, duration: 0.25 }}
               >
-                <div style={{ minWidth: 40, textAlign: 'center', padding: '5px 4px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', flexShrink: 0 }}>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>
-                    {new Date(e.date).toLocaleString('en-US', { month: 'short' }).toUpperCase()}
+                <a
+                  href={e.url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="event-row-inner"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    padding: '10px 12px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.025)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    textDecoration: 'none',
+                    transition: 'background 0.15s, border-color 0.15s',
+                  }}
+                >
+                  {/* Date block — ticket stub style */}
+                  <div
+                    className="date-badge"
+                    style={{
+                      flexShrink: 0, width: 46, textAlign: 'center',
+                      padding: '7px 4px', borderRadius: 8,
+                      background: 'rgba(255,255,255,0.04)',
+                      borderRight: '1px dashed rgba(255,255,255,0.08)',
+                      transition: 'background 0.15s',
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: 9, letterSpacing: 2,
+                      color: 'rgba(255,255,255,0.35)',
+                    }}>
+                      {d.toLocaleString('en-US', { month: 'short' }).toUpperCase()}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: 22, lineHeight: 1,
+                      color: 'white',
+                    }}>
+                      {d.getDate()}
+                    </div>
+                    <div style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 9, color: 'rgba(255,255,255,0.25)',
+                    }}>
+                      {d.toLocaleString('en-US', { weekday: 'short' }).toUpperCase()}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 15, color: 'white', fontFamily: 'monospace', fontWeight: 700, lineHeight: 1.2 }}>
-                    {new Date(e.date).getDate()}
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 14, fontWeight: 500,
+                      color: 'rgba(255,255,255,0.92)',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      letterSpacing: 0.1,
+                    }}>{e.artist}</div>
+                    <div style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 11, fontWeight: 300, fontStyle: 'italic',
+                      color: 'rgba(255,255,255,0.4)',
+                      marginTop: 2,
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {e.venue}
+                    </div>
+                    <div style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 11,
+                      color: 'rgba(255,255,255,0.3)',
+                      marginTop: 1,
+                    }}>
+                      {e.city}{e.region ? `, ${e.region}` : ''} · {e.country}
+                    </div>
                   </div>
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, color: 'white', fontFamily: 'Georgia, serif', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {e.artist}
+
+                  {/* Days away badge */}
+                  <div style={{
+                    flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6,
+                  }}>
+                    <div style={{
+                      fontFamily: "'Bebas Neue', sans-serif",
+                      fontSize: 10, letterSpacing: 1.5,
+                      padding: '3px 8px', borderRadius: 6,
+                      background: days.urgent ? 'rgba(255,210,60,0.15)' : 'rgba(255,255,255,0.05)',
+                      color: days.urgent ? 'rgba(255,210,60,0.9)' : 'rgba(255,255,255,0.25)',
+                      border: `1px solid ${days.urgent ? 'rgba(255,210,60,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                    }}>{days.label}</div>
+
+                    {/* Arrow */}
+                    <div
+                      className="event-arrow"
+                      style={{
+                        fontSize: 12, color: 'rgba(255,255,255,0.2)',
+                        opacity: 0, transform: 'translateX(-4px)',
+                        transition: 'opacity 0.15s, transform 0.15s',
+                      }}
+                    >→</div>
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {e.venue} · {e.city}{e.region ? `, ${e.region}` : ''}, {e.country}
-                  </div>
-                </div>
-                <div style={{
-                  fontSize: 9, fontFamily: 'monospace', fontWeight: 700, letterSpacing: 1,
-                  flexShrink: 0, padding: '3px 7px', borderRadius: 6,
-                  background: days === 'TODAY' || days === 'TOMORROW' ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.05)',
-                  color: days === 'TODAY' || days === 'TOMORROW' ? '#a78bfa' : 'rgba(255,255,255,0.3)',
-                }}>
-                  {days}
-                </div>
-              </motion.a>
+                </a>
+              </motion.div>
             );
           })}
         </AnimatePresence>
@@ -438,19 +664,30 @@ function MonthGroup({ month, events, daysUntil }: {
 }
 
 function LoadingState() {
+  const bars = [60, 80, 45, 70, 55, 85, 40, 65];
   return (
-    <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 40, textAlign: 'center' }}>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', letterSpacing: 2, marginBottom: 16 }}>
-        SCANNING TOUR DATES...
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 5 }}>
-        {[0, 1, 2, 3, 4].map(i => (
+    <div style={{
+      background: 'rgba(255,255,255,0.02)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 14, padding: '32px 24px',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+    }}>
+      {/* Animated equalizer bars */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height: 28 }}>
+        {bars.map((h, i) => (
           <motion.div key={i}
-            style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(139,92,246,0.6)' }}
-            animate={{ opacity: [0.2, 1, 0.2], y: [0, -4, 0] }}
-            transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.15 }}
+            style={{ width: 4, borderRadius: 2, background: 'rgba(255,210,60,0.5)' }}
+            animate={{ height: [h * 0.3, h, h * 0.5, h * 0.8, h * 0.3] }}
+            transition={{ repeat: Infinity, duration: 0.8 + i * 0.1, ease: 'easeInOut', delay: i * 0.08 }}
           />
         ))}
+      </div>
+      <div style={{
+        fontFamily: "'Bebas Neue', sans-serif",
+        fontSize: 13, letterSpacing: 4,
+        color: 'rgba(255,255,255,0.3)',
+      }}>
+        SCANNING TOUR DATES
       </div>
     </div>
   );
@@ -458,12 +695,27 @@ function LoadingState() {
 
 function EmptyState({ activeCity, artistFilter }: { activeCity: string; artistFilter: string | null }) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 32, textAlign: 'center' }}>
-      <div style={{ fontSize: 22, marginBottom: 10 }}>🎸</div>
-      <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 13, margin: '0 0 4px' }}>
-        {activeCity ? `None of your top artists are playing near ${activeCity} in the next year.` : artistFilter ? `${artistFilter} has no upcoming shows in the next year.` : 'No upcoming shows found for your top artists.'}
-      </p>
-      <p style={{ color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace', fontSize: 10, margin: 0 }}>
+    <div style={{
+      background: 'rgba(255,255,255,0.02)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 14, padding: '36px 24px',
+      textAlign: 'center',
+    }}>
+      <div style={{ fontSize: 28, marginBottom: 12 }}>🎸</div>
+      <div style={{
+        fontFamily: "'Bebas Neue', sans-serif",
+        fontSize: 16, letterSpacing: 3,
+        color: 'rgba(255,255,255,0.5)',
+        marginBottom: 6,
+      }}>
+        {activeCity ? `NOTHING IN ${activeCity.toUpperCase()}` : artistFilter ? 'NO UPCOMING SHOWS' : 'NO SHOWS FOUND'}
+      </div>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontStyle: 'italic', fontWeight: 300,
+        fontSize: 12, color: 'rgba(255,255,255,0.25)',
+        margin: 0,
+      }}>
         {activeCity ? 'Try clearing the city filter to see all tour dates.' : 'Check back soon — tours get announced frequently.'}
       </p>
     </div>
