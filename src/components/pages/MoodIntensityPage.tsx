@@ -24,7 +24,7 @@ function HelixCanvas({ width = 130, height = 280 }: { width?: number; height?: n
       ctx.beginPath();
       ctx.moveTo(cx, 12);
       ctx.lineTo(cx, H - 12);
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.strokeStyle = 'rgb(255, 255, 255)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -118,7 +118,7 @@ function StatBar({ label, value, color, delay = 0, source }: { label: string; va
         <span style={{ fontFamily: 'Georgia, serif', fontWeight: 600 }}>{label}</span>
         <span style={{ fontFamily: 'monospace', color, fontWeight: 700 }}>{(safe * 100).toFixed(0)}</span>
       </div>
-      <div style={{ height: 5, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+      <div style={{ height: 5, background: 'rgb(255, 255, 255)', borderRadius: 3, overflow: 'hidden' }}>
         <motion.div
           style={{ height: '100%', borderRadius: 3, background: `linear-gradient(to right, ${color}88, ${color})`, boxShadow: `0 0 8px ${color}50` }}
           initial={{ width: 0 }}
@@ -127,7 +127,7 @@ function StatBar({ label, value, color, delay = 0, source }: { label: string; va
         />
       </div>
       {source && (
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', marginTop: 3 }}>{source}</div>
+        <div style={{ fontSize: 12, color: 'rgb(255, 255, 255)', fontFamily: 'monospace', marginTop: 3 }}>{source}</div>
       )}
     </div>
   );
@@ -175,14 +175,14 @@ export default function MoodIntensityPage({ data }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
         {/* Helix */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>SONIC HELIX</div>
+          <div style={{ fontSize: 12, color: 'rgb(255, 255, 255)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>SONIC HELIX</div>
           <HelixCanvas width={120} height={240} />
         </div>
 
         {/* DNA Indices + Summary */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>DNA INDICES</div>
+            <div style={{ fontSize: 12, color: 'rgb(255, 255, 255)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>DNA INDICES</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <StatBar label="Groove" value={indices.groove} color="#CD853F" delay={0} />
               <StatBar label="Brightness" value={indices.brightness} color="#90EE90" delay={0.1} />
@@ -199,7 +199,7 @@ export default function MoodIntensityPage({ data }: Props) {
 
         {/* Radar */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'visible' }}>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 8 }}>MOOD RADAR</div>
+          <div style={{ fontSize: 12, color: 'rgb(255, 255, 255)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 8 }}>MOOD RADAR</div>
           <svg width="100%" height="100%" viewBox={`0 0 ${W} ${W}`} style={{ maxWidth: 260, maxHeight: 260, overflow: 'visible' }}>
             {[0.25, 0.5, 0.75, 1].map((s, i) => (
               <polygon key={i}
