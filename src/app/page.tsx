@@ -213,7 +213,7 @@ export default function Home() {
                     ) : !activeRecord ? (
                       <motion.div key="idle" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
                         <p style={{ color: 'rgb(252, 252, 252)', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 20, margin: 0 }}>
-                          Click or drag a record on to the turntable to play
+                          click or drag a record on to the turntable to play
                         </p>
                       </motion.div>
                     ) : null}
