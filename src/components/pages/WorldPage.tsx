@@ -48,7 +48,7 @@ export default function WorldPage({ data }: { data: any }) {
 
   // brighter orange scale
   const orangeHeat = useMemo(() => {
-    return scaleLinear<number, string>()
+    return scaleLinear<string>()
       .domain([0, 0.2, 0.5, 0.8, 1])
       .range([
         'rgba(200,118,44,0.10)',
@@ -234,7 +234,7 @@ export default function WorldPage({ data }: { data: any }) {
         <div
           style={{
             fontSize: 12,
-            color: 'rgba(255,255,255,0.3)',
+            color: 'rgba(255, 255, 255, 0.46)',
             letterSpacing: 3,
             fontFamily: 'monospace',
             marginBottom: 10,
@@ -244,22 +244,22 @@ export default function WorldPage({ data }: { data: any }) {
           }}
         >
           <span>WORLD TASTE MAP</span>
-          <span style={{ letterSpacing: 1, color: 'rgba(255,255,255,0.22)' }}>
-            more orange = higher match
+          <span style={{ letterSpacing: 1, color: 'rgba(255, 255, 255, 0.34)' }}>
+            <i>brighter orange = stronger taste match</i>
           </span>
         </div>
 
         <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
           <ComposableMap projection="geoMercator" projectionConfig={{ scale: 150 }} style={{ width: '100%', height: 'auto' }}>
             <Geographies geography={GEO_URL}>
-              {({ geographies }) =>
-                geographies.map((geo) => {
-                  const name = (geo.properties?.name as string) || 'Unknown';
-                  const iso2 =
-                    (geo.properties?.iso_a2 as string) ||
-                    (geo.properties?.ISO_A2 as string) ||
-                    '';
-                  const isSelected = selectedName === name;
+                {({ geographies }: any) =>
+                  geographies.map((geo: any) => {
+                    const name = (geo.properties?.name as string) || 'Unknown';
+                    const iso2 =
+                      (geo.properties?.iso_a2 as string) ||
+                      (geo.properties?.ISO_A2 as string) ||
+                      '';
+                    const isSelected = selectedName === name;
 
                   return (
                     <Geography
@@ -290,7 +290,7 @@ export default function WorldPage({ data }: { data: any }) {
           </ComposableMap>
         </div>
 
-        <div style={{ marginTop: 10, fontSize: 10, color: 'rgba(255,255,255,0.25)', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+        <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(255, 255, 255, 0.38)', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
           Hover to preview. Click to lock a country.
         </div>
 
@@ -381,9 +381,6 @@ export default function WorldPage({ data }: { data: any }) {
                   }}
                 >
                   No data available for this country.
-                  <div style={{ marginTop: 6, fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>
-                    {panel.reason ? `reason: ${panel.reason}` : 'limited chart coverage'}
-                  </div>
                 </div>
               )}
             </motion.div>
