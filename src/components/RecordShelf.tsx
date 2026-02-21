@@ -177,7 +177,7 @@ export default function RecordShelf({ records, onRecordClick, activeId }: Props)
           gap: 12,
           justifyContent: 'center',
           flexWrap: 'nowrap',
-          paddingBottom: 4,
+          paddingBottom: 0,
         }}>
           {records.map((rec, i) => (
             <SpineRecord
@@ -193,7 +193,7 @@ export default function RecordShelf({ records, onRecordClick, activeId }: Props)
         {/* Shelf board */}
         <div style={{
           position: 'relative', zIndex: 2,
-          height: 20, marginTop: 12,
+          height: 20, marginTop: 0,
           background: 'linear-gradient(to bottom, #7B5030 0%, #5A3418 40%, #3A1E08 100%)',
           borderRadius: '0 0 10px 10px',
           boxShadow: '0 8px 24px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1)',
