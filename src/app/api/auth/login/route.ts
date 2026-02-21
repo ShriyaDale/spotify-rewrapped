@@ -24,5 +24,13 @@ export async function GET(request: NextRequest) {
 
   const response = NextResponse.redirect(`https://accounts.spotify.com/authorize?${params}`);
   setSpotifyStateCookie(response, request, state);
+  
+  console.log('[auth/login] Setting state cookie:', {
+    state,
+    redirectUri,
+    requestUrl: request.url,
+    hostname: new URL(request.url).hostname
+  });
+  
   return response;
 }

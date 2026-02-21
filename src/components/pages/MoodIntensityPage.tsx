@@ -204,45 +204,27 @@ export default function MoodIntensityPage({ data }: Props) {
           </div>
         </div>
       </div>
-      {/* Top artist hero */}
-      <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(176,32,32,0.25)', borderRadius: 14, padding: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{
-            width: 68, height: 68, borderRadius: '50%',
-            background: topArtists[0]?.image
-              ? `url(${topArtists[0].image}) center/cover`
-              : 'radial-gradient(circle at 35% 35%, #CC3300, #3D0000)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28, border: '2px solid rgba(176,32,32,0.4)',
-            boxShadow: '0 0 24px rgba(176,32,32,0.3)',
-            flexShrink: 0,
-          }}>
-            {!topArtists[0]?.image && '🎸'}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace' }}>TOP ARTIST</div>
-            <div style={{ fontSize: 22, color: 'white', fontFamily: "'Playfair Display', serif", fontWeight: 'bold', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {topArtists[0]?.name}
-            </div>
-            <div style={{ fontSize: 11, color: '#FF6B6B', marginTop: 4 }}>
-              🔥 {topArtists[0]?.plays} plays in last 50 · Streak active
-            </div>
-          </div>
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <motion.div
-              style={{ fontSize: 52, fontWeight: 900, color: '#B02020', fontFamily: "'Playfair Display', serif", lineHeight: 1 }}
-              initial={{ scale: 0 }} animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-            >
-              {Math.round(topArtists[0]?.intensity * 100 || 75)}
-            </motion.div>
-            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', letterSpacing: 1 }}>INTENSITY</div>
-          </div>
-        </div>
-      </div>
 
       {/* Radar + Stats grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        {/* Stats */}
+        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>
+            MOOD STATS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
+          </div>
+          <StatBar label="Valence" value={mood.valence ?? 0.5} color="#FFD700" delay={0} source="happy vs sad tendency" />
+          <StatBar label="Energy" value={mood.energy ?? 0.5} color="#FF6B6B" delay={0.1} source="intense vs calm" />
+          <StatBar label="Danceability" value={mood.danceability ?? 0.5} color="#90EE90" delay={0.2} source="groove factor" />
+          <StatBar label="Acousticness" value={mood.acousticness ?? 0.3} color="#87CEEB" delay={0.3} source="organic vs produced" />
+
+          {/* Summary */}
+          <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: 'rgba(74,128,32,0.07)', border: '1px solid rgba(74,128,32,0.2)' }}>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.7, margin: 0 }}>
+              Your listening is <strong style={{ color: 'white' }}>{moodLabel}</strong>, <strong style={{ color: 'white' }}>{energyLabel}</strong>, and <strong style={{ color: 'white' }}>{danceLabel}</strong>.
+            </p>
+          </div>
+        </div>
+
         {/* Radar */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 8 }}>MOOD RADAR</div>
@@ -270,87 +252,6 @@ export default function MoodIntensityPage({ data }: Props) {
               );
             })}
           </svg>
-        </div>
-
-        {/* Stats */}
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>
-            MOOD STATS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
-          </div>
-          <StatBar label="Valence" value={mood.valence ?? 0.5} color="#FFD700" delay={0} source="happy vs sad tendency" />
-          <StatBar label="Energy" value={mood.energy ?? 0.5} color="#FF6B6B" delay={0.1} source="intense vs calm" />
-          <StatBar label="Danceability" value={mood.danceability ?? 0.5} color="#90EE90" delay={0.2} source="groove factor" />
-          <StatBar label="Acousticness" value={mood.acousticness ?? 0.3} color="#87CEEB" delay={0.3} source="organic vs produced" />
-
-          {/* Summary */}
-          <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: 'rgba(74,128,32,0.07)', border: '1px solid rgba(74,128,32,0.2)' }}>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.7, margin: 0 }}>
-              Your listening is <strong style={{ color: 'white' }}>{moodLabel}</strong>, <strong style={{ color: 'white' }}>{energyLabel}</strong>, and <strong style={{ color: 'white' }}>{danceLabel}</strong>.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Fan intensity bars */}
-      <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>TOP ARTISTS</div>
-        {topArtists.slice(0, 5).map((a: any, i: number) => (
-          <motion.div
-            key={a.name}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: i * 0.08 }}
-          >
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', width: 14, flexShrink: 0 }}>{i + 1}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'Georgia, serif', marginBottom: 5 }}>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.name}</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', flexShrink: 0, marginLeft: 8 }}>{a.plays} plays</span>
-              </div>
-              <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
-                <motion.div
-                  style={{ height: '100%', borderRadius: 3, background: 'linear-gradient(to right, #5A0808, #B02020)', boxShadow: '0 0 6px rgba(176,32,32,0.4)' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(a.intensity ?? 0.5) * 100}%` }}
-                  transition={{ duration: 0.9, delay: i * 0.08 + 0.3 }}
-                />
-              </div>
-            </div>
-            <span style={{ fontSize: 12, color: '#B02020', fontFamily: 'monospace', width: 28, textAlign: 'right', flexShrink: 0 }}>
-              {Math.round((a.intensity ?? 0.5) * 100)}
-            </span>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Mood timeline */}
-      <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace' }}>MOOD TIMELINE — LAST {recent.length || 20} PLAYS</div>
-          {!hasValence && (
-            <div style={{ fontSize: 9, color: 'rgba(255,180,50,0.6)', fontFamily: 'monospace' }}>estimated valence</div>
-          )}
-        </div>
-        <svg width="100%" height="70" viewBox="0 0 380 70" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="moodgrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FFD700" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#FFD700" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <line x1="0" y1="30" x2="380" y2="30" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 4" />
-          <path d={areaD} fill="url(#moodgrad)" />
-          <motion.path
-            d={pathD} fill="none" stroke="#FFD700" strokeWidth="2" strokeLinejoin="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.5, ease: 'easeInOut' }}
-          />
-        </svg>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>oldest</span>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>most recent</span>
         </div>
       </div>
     </div>

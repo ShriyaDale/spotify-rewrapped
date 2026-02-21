@@ -6,9 +6,23 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const error = searchParams.get('error');
   const incomingState = searchParams.get('state');
-  const savedState = request.cookies.get('sp_state')?.value;
+  let savedState = request.cookies.get('sp_state')?.value;
+  
+  // Fallback to backup cookie if primary is missing
+  if (!savedState) {
+    savedState = request.cookies.get('sp_state_backup')?.value;
+  }
+  
+  const allCookies = request.cookies.getAll();
 
-  console.log('[auth/callback]', { incomingState, savedState, code: !!code, error });
+  console.log('[auth/callback]', {
+    incomingState,
+    savedState,
+    code: !!code,
+    error,
+    cookieCount: allCookies.length,
+    cookieNames: allCookies.map(c => c.name)
+  });
 
   if (error || !code) {
     return NextResponse.redirect(new URL('/?error=spotify_denied', request.url));

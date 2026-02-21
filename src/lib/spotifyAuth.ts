@@ -17,13 +17,25 @@ export function resolveSpotifyRedirectUri(request: NextRequest) {
 }
 
 export function setSpotifyStateCookie(response: NextResponse, request: NextRequest, state: string) {
-  response.cookies.set(STATE_COOKIE, state, {
+  // Try multiple cookie strategies to ensure state persists through OAuth redirect
+  const cookieOptions = {
     httpOnly: false,
     secure: false,
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
     maxAge: 60 * 10,
+  };
+  
+  // Set primary cookie
+  response.cookies.set(STATE_COOKIE, state, cookieOptions);
+  
+  // Also store in a backup cookie with no restrictions
+  response.cookies.set(`${STATE_COOKIE}_backup`, state, {
+    ...cookieOptions,
+    httpOnly: false,
   });
+  
+  console.log('[spotifyAuth] Set state cookies:', state);
 }
 
 export function clearSpotifyStateCookie(response: NextResponse) {
