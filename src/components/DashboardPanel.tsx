@@ -1,16 +1,14 @@
 'use client';
 import { Record } from '@/app/page';
 import DNAPage from './pages/DNAPage';
-import MoodPage from './pages/MoodPage';
-import IntensityPage from './pages/IntensityPage';
 import DiscoveryPage from './pages/DiscoveryPage';
 import WorldPage from './pages/WorldPage';
 import FuturePage from './pages/FuturePage';
 
 const PAGES: Record<string, React.ComponentType<{ data: any }>> = {
   dna: DNAPage,
-  mood: MoodPage,
-  intensity: IntensityPage,
+  // mood: MoodPage,
+  // intensity: IntensityPage,
   discovery: DiscoveryPage,
   world: WorldPage,
   future: FuturePage,
