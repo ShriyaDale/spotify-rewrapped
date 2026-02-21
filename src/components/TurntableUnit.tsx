@@ -152,7 +152,7 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
                 <div style={{ fontSize: 40, opacity: isDragOver ? 0.95 : 0.3, transition: 'opacity 0.3s' }}>💿</div>
                 <div style={{
                   fontSize: 10, fontFamily: 'monospace', letterSpacing: 3, marginTop: 10, fontWeight: 700,
-                  color: isDragOver ? 'rgba(200,118,44,0.95)' : 'rgba(255,255,255,0.35)',
+                  color: isDragOver ? 'rgba(200,118,44,0.95)' : 'rgba(255, 255, 255, 0.35)',
                   transition: 'color 0.3s',
                 }}>
                   {isDragOver ? 'RELEASE TO PLAY' : 'DROP RECORD'}
@@ -177,9 +177,9 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
         <div style={{
           position: 'absolute',
           width: 12, height: 12, borderRadius: '50%',
-          top: 'calc(50% - 10px)', left: 'calc(50% - 1px)',
+          top: 'calc(47% - 10px)', left: 'calc(51% - 1px)',
           transform: 'translate(-51%, -56%) translate(-50%, -50%)',
-          background: 'linear-gradient(to bottom, #d0d0d0, #787878)',
+          background: 'linear-gradient(to bottom, #ffffff, #ffffff)',
           boxShadow: '0 0 4px rgba(0,0,0,0.8)',
           zIndex: 20,
         }} />
