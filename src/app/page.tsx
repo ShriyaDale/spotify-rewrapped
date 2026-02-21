@@ -111,7 +111,7 @@ export default function Home() {
                 cursor: 'pointer', fontSize: 12, letterSpacing: 2,
                 fontFamily: 'monospace', fontWeight: 700, transition: 'all 0.15s',
               }}
-            >SHELF</motion.button>
+            >HOME</motion.button>
 
             {RECORDS.map(rec => {
               const isActive = navActiveId === rec.id;
@@ -246,7 +246,7 @@ export default function Home() {
                     borderRadius: 999, padding: '9px 24px',
                     cursor: 'pointer', transition: 'all 0.18s',
                   }}
-                >← BACK TO SHELF</button>
+                >← BACK TO HOME</button>
               </div>
               <DashboardPanel record={activeRecord} data={spotifyData} />
             </motion.div>
