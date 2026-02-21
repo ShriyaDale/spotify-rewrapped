@@ -48,7 +48,7 @@ export default function WorldPage({ data }: { data: any }) {
 
   // brighter orange scale
   const orangeHeat = useMemo(() => {
-    return scaleLinear<number, string>()
+    return scaleLinear<string>()
       .domain([0, 0.2, 0.5, 0.8, 1])
       .range([
         'rgba(200,118,44,0.10)',
@@ -252,14 +252,14 @@ export default function WorldPage({ data }: { data: any }) {
         <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
           <ComposableMap projection="geoMercator" projectionConfig={{ scale: 150 }} style={{ width: '100%', height: 'auto' }}>
             <Geographies geography={GEO_URL}>
-              {({ geographies }) =>
-                geographies.map((geo) => {
-                  const name = (geo.properties?.name as string) || 'Unknown';
-                  const iso2 =
-                    (geo.properties?.iso_a2 as string) ||
-                    (geo.properties?.ISO_A2 as string) ||
-                    '';
-                  const isSelected = selectedName === name;
+                {({ geographies }: any) =>
+                  geographies.map((geo: any) => {
+                    const name = (geo.properties?.name as string) || 'Unknown';
+                    const iso2 =
+                      (geo.properties?.iso_a2 as string) ||
+                      (geo.properties?.ISO_A2 as string) ||
+                      '';
+                    const isSelected = selectedName === name;
 
                   return (
                     <Geography
