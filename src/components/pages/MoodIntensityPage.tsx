@@ -145,6 +145,7 @@ export default function MoodIntensityPage({ data }: Props) {
   const recent = data?.recent || [];
   const isRealData = !!data?.profile;
   const topArtists = data?.artists || [];
+  const topTracks = data?.topTracks || [];
 
   // Build a readable genre summary
   const genreList = topArtists
@@ -163,63 +164,34 @@ export default function MoodIntensityPage({ data }: Props) {
   const toXY = (a: number, d: number) => ({ x: cx + Math.cos((a * Math.PI) / 180) * d, y: cy + Math.sin((a * Math.PI) / 180) * d });
   const dataPath = axes.map((a) => toXY(a.a, R * a.v)).map((p) => `${p.x},${p.y}`).join(' ');
 
-  // Mood timeline
-  const hasValence = recent.some((r: any) => r.valence != null);
-  const timeline = recent.length
-    ? recent.map((r: any, i: number) => ({
-        x: i * (360 / Math.max(recent.length - 1, 1)),
-        y: r.valence != null ? r.valence : mood.valence ?? 0.5,
-      }))
-    : Array.from({ length: 20 }, (_, i) => ({ x: i * 19, y: 0.5 + Math.sin(i * 0.5) * 0.15 }));
-
-  const pathD = timeline.map((p: any, i: number) => `${i === 0 ? 'M' : 'L'}${p.x},${55 - p.y * 50}`).join(' ');
-  const areaD = pathD + ` L${timeline[timeline.length - 1].x},60 L0,60 Z`;
-
   // Summary labels
   const moodLabel = (mood.valence ?? 0.5) > 0.6 ? 'upbeat' : (mood.valence ?? 0.5) < 0.4 ? 'melancholic' : 'balanced';
   const energyLabel = (mood.energy ?? 0.5) > 0.65 ? 'high-energy' : (mood.energy ?? 0.5) < 0.35 ? 'laid-back' : 'mid-tempo';
   const danceLabel = (mood.danceability ?? 0.5) > 0.6 ? 'groove-heavy' : 'less rhythmic';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {/* Helix + DNA Indices */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Top Row: Helix + DNA Indices + Radar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr 280px', gap: 14 }}>
         {/* Helix */}
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 10 }}>SONIC HELIX</div>
           <HelixCanvas width={120} height={240} />
         </div>
 
-        {/* DNA Indices */}
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>DNA INDICES</div>
-          <StatBar label="Groove" value={indices.groove} color="#CD853F" delay={0} />
-          <StatBar label="Brightness" value={indices.brightness} color="#90EE90" delay={0.1} />
-          <StatBar label="Heat" value={indices.heat} color="#FF6B6B" delay={0.2} />
-          <StatBar label="Pace" value={indices.pace} color="#87CEEB" delay={0.3} />
-          <div style={{ marginTop: 16, padding: '12px', borderRadius: 10, background: 'rgba(205,133,63,0.07)', border: '1px solid rgba(205,133,63,0.18)' }}>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.65, margin: 0 }}>
-              "Your needle lands on high-energy grooves with upbeat melodies."
-            </p>
+        {/* DNA Indices + Summary */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>DNA INDICES</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <StatBar label="Groove" value={indices.groove} color="#CD853F" delay={0} />
+              <StatBar label="Brightness" value={indices.brightness} color="#90EE90" delay={0.1} />
+              <StatBar label="Heat" value={indices.heat} color="#FF6B6B" delay={0.2} />
+              <StatBar label="Pace" value={indices.pace} color="#87CEEB" delay={0.3} />
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Radar + Stats grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        {/* Stats */}
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>
-            MOOD STATS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
-          </div>
-          <StatBar label="Valence" value={mood.valence ?? 0.5} color="#FFD700" delay={0} source="happy vs sad tendency" />
-          <StatBar label="Energy" value={mood.energy ?? 0.5} color="#FF6B6B" delay={0.1} source="intense vs calm" />
-          <StatBar label="Danceability" value={mood.danceability ?? 0.5} color="#90EE90" delay={0.2} source="groove factor" />
-          <StatBar label="Acousticness" value={mood.acousticness ?? 0.3} color="#87CEEB" delay={0.3} source="organic vs produced" />
-
-          {/* Summary */}
-          <div style={{ marginTop: 14, padding: 12, borderRadius: 10, background: 'rgba(74,128,32,0.07)', border: '1px solid rgba(74,128,32,0.2)' }}>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.7, margin: 0 }}>
+          <div style={{ background: 'rgba(205,133,63,0.07)', border: '1px solid rgba(205,133,63,0.18)', borderRadius: 14, padding: 14 }}>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.7, margin: 0, textAlign: 'center' }}>
               Your listening is <strong style={{ color: 'white' }}>{moodLabel}</strong>, <strong style={{ color: 'white' }}>{energyLabel}</strong>, and <strong style={{ color: 'white' }}>{danceLabel}</strong>.
             </p>
           </div>
@@ -252,6 +224,51 @@ export default function MoodIntensityPage({ data }: Props) {
               );
             })}
           </svg>
+        </div>
+      </div>
+
+      {/* Bottom Row: Mood Stats + Top Tracks */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        {/* Mood Stats */}
+        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 16 }}>
+            MOOD STATS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
+          </div>
+          <StatBar label="Valence" value={mood.valence ?? 0.5} color="#FFD700" delay={0} source="happy vs sad tendency" />
+          <StatBar label="Energy" value={mood.energy ?? 0.5} color="#FF6B6B" delay={0.1} source="intense vs calm" />
+          <StatBar label="Danceability" value={mood.danceability ?? 0.5} color="#90EE90" delay={0.2} source="groove factor" />
+          <StatBar label="Acousticness" value={mood.acousticness ?? 0.3} color="#87CEEB" delay={0.3} source="organic vs produced" />
+        </div>
+
+        {/* Top Tracks */}
+        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: 16 }}>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 14 }}>
+            TOP TRACKS {!isRealData && <span style={{ color: 'rgba(255,100,100,0.8)' }}>· DEMO</span>}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {topTracks.slice(0, 5).map((track: any, i: number) => (
+              <motion.div
+                key={i}
+                style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: i * 0.06 }}
+              >
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', width: 14, flexShrink: 0 }}>{i + 1}</span>
+                {track.image && (
+                  <div style={{ width: 36, height: 36, borderRadius: 6, background: `url(${track.image}) center/cover`, flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} />
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', fontFamily: 'Georgia, serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {track.name || 'Unknown Track'}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {track.artist || 'Unknown Artist'}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
