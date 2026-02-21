@@ -87,7 +87,17 @@ export default function DiscoveryPage({ data }: Props) {
                 )}
                 <div>
                   <div style={{ fontSize: 12, color: 'white', fontFamily: 'Georgia, serif' }}>{r.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{r.artists?.[0]?.name}</div>
+                  <a
+                    href={r.artists?.[0]?.external_urls?.spotify || `https://open.spotify.com/search/artist%3A${encodeURIComponent(r.artists?.[0]?.name || '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', cursor: 'pointer' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
+                  >
+                    {r.artists?.[0]?.name}
+                  </a>
                 </div>
                 {r.preview_url && (
                   <button
@@ -113,7 +123,7 @@ export default function DiscoveryPage({ data }: Props) {
                 {t.image && <img src={t.image} alt="" style={{ width: 36, height: 36, borderRadius: 4 }} />}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, color: 'white', fontFamily: 'Georgia, serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{t.artist}</div>
+                  <a href={t.artistUrl || `https://open.spotify.com/search/artist%3A${encodeURIComponent(t.artist || '')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textDecoration: 'none', cursor: 'pointer', display: 'inline-block' }} onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')} onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>{t.artist}</a>
                 </div>
                 <a href={t.spotifyUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#1DB954', textDecoration: 'none' }}>↗</a>
               </motion.div>
@@ -127,21 +137,23 @@ export default function DiscoveryPage({ data }: Props) {
         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: 3, fontFamily: 'monospace', marginBottom: 12 }}>RECOMMENDED · BASED ON YOUR DNA</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
           {defaultRecs.map((r, i) => (
-            <motion.div key={r.name}
-              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 10px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(46,74,172,0.18)',
-                cursor: 'pointer',
-              }}
-              whileHover={{ borderColor: 'rgba(46,74,172,0.4)', background: 'rgba(46,74,172,0.06)' }}
-            >
-              <div style={{ width: 30, height: 30, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, background: `hsl(${i * 40 + 200}, 50%, 20%)` }}>🎵</div>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'Georgia, serif' }}>{r.name}</span>
-            </motion.div>
-          ))}
+            <a key={r.name} href={`https://open.spotify.com/search/artist%3A${encodeURIComponent(r.name)}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <motion.div
+                initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '8px 10px', borderRadius: 10,
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(46,74,172,0.18)',
+                  cursor: 'pointer',
+                }}
+                whileHover={{ borderColor: 'rgba(46,74,172,0.4)', background: 'rgba(46,74,172,0.06)' }}
+              >
+                <div style={{ width: 30, height: 30, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, background: `hsl(${i * 40 + 200}, 50%, 20%)` }}>🎵</div>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: 'Georgia, serif' }}>{r.name}</span>
+              </motion.div>
+            </a>
+          ))}}
         </div>
       </div>
     </div>
