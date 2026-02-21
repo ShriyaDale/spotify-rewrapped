@@ -142,22 +142,22 @@ export async function GET(request: NextRequest) {
 
     // Attach features to tracks, ensuring all audio properties are included
     const shortTracksWithFeatures = shortTracks.items.map((t: any) => {
-      const features = shortFeatures.audio_features?.find((f: any) => f?.id === t.id);
+      const features = shortFeatures.audio_features?.find?.((f: any) => f?.id === t.id) as any;
       return {
         ...t,
         ...(features || {}),
         // Ensure tempo defaults to 120 if not found
-        tempo: features?.tempo ?? t.tempo ?? 120,
+        tempo: (features as any)?.tempo ?? t?.tempo ?? 120,
       };
     });
     
     const longTracksWithFeatures = longTracks.items.map((t: any) => {
-      const features = longFeatures.audio_features?.find((f: any) => f?.id === t.id);
+      const features = longFeatures.audio_features?.find?.((f: any) => f?.id === t.id) as any;
       return {
         ...t,
         ...(features || {}),
         // Ensure tempo defaults to 120 if not found
-        tempo: features?.tempo ?? t.tempo ?? 120,
+        tempo: (features as any)?.tempo ?? t?.tempo ?? 120,
       };
     });
 

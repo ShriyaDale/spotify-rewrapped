@@ -1,12 +1,12 @@
 'use client';
-import { Record } from '@/app/page';
+import { Record } from '@/lib/constants';
 import DNAPage from './pages/DNAPage';
 import DiscoveryPage from './pages/DiscoveryPage';
 import WorldPage from './pages/WorldPage';
 import FuturePage from './pages/FuturePage';
 import ConcertRadar from './pages/ConcertRadar';
 
-const PAGES: Record<string, React.ComponentType<{ data: any }>> = {
+const PAGE_COMPONENTS: { [key: string]: React.ComponentType<{ data: any }> } = {
   dna: DNAPage,
   discovery: DiscoveryPage,
   world: WorldPage,
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default function DashboardPanel({ record, data }: Props) {
-  const Page = PAGES[record.id];
+  const Page = PAGE_COMPONENTS[record.id];
   if (!Page) return null;
 
   return (

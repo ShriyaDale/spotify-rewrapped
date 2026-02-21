@@ -1,6 +1,6 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Record } from '@/app/page';
+import { Record } from '@/lib/constants';
 import Vinyl from './Vinyl';
 
 interface Props {

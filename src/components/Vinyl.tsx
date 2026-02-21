@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Record } from '@/app/page';
+import { Record } from '@/lib/constants';
 
 interface Props {
   record: Record;

@@ -33,7 +33,7 @@ export default function Home() {
 
   const handleRecordDrop = (id: string) => {
     const rec = RECORDS.find((r) => r.id === id);
-    if (rec) placeRecord(rec);
+    if (rec) placeRecord(rec as Record);
   };
 
   const placeRecord = (record: Record) => {
@@ -102,7 +102,7 @@ export default function Home() {
               }}
             >
               <div style={{ flex: 1, minWidth: 300, maxWidth: 620, transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-                <RecordShelf records={RECORDS} onRecordClick={handleRecordClick} activeId={activeRecord?.id} />
+                <RecordShelf records={RECORDS as readonly Record[]} onRecordClick={handleRecordClick} activeId={activeRecord?.id} />
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 56 }}>

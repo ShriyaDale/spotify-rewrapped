@@ -1,10 +1,10 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Record } from '@/app/page';
+import { Record } from '@/lib/constants';
 
 interface Props {
-  records: Record[];
+  records: readonly Record[];
   onRecordClick: (record: Record) => void;
   activeId?: string;
 }
@@ -25,7 +25,7 @@ function SpineRecord({
   return (
     <motion.div
       draggable
-      onDragStart={(e) => e.dataTransfer.setData('rid', record.id)}
+      onDragStart={(e: any) => (e as DragEvent).dataTransfer?.setData('rid', record.id)}
       onClick={onClick}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
