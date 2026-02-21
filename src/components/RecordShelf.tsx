@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Record } from '@/lib/constants';
+import { Record } from '@/app/page';
 
 interface Props {
   records: Record[];

@@ -49,7 +49,7 @@ export default function Header({ authStatus, profile }: Props) {
               fontFamily: "'Playfair Display', serif",
             }}
           >
-            SPOTIFY WRAPPED
+            BETTER WRAPPED
           </div>
           <div
             style={{

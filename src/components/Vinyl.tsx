@@ -78,7 +78,7 @@ export default function Vinyl({ record, size = 200, spin = false, glow = false }
           {record.icon}
         </text>
         <text x="100" y="118" textAnchor="middle" fontSize="4" fontFamily="Georgia, serif" fill={record.color} opacity="0.55" letterSpacing="1.2">
-          SPOTIFY WRAPPED™
+          BETTER WRAPPED™
         </text>
 
         {/* Spindle */}

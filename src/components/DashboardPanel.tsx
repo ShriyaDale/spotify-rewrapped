@@ -1,19 +1,23 @@
 'use client';
-import { Record as RecordType } from '@/app/page';
-import MoodIntensityPage from './pages/MoodIntensityPage';
+import { Record } from '@/app/page';
+import DNAPage from './pages/DNAPage';
+import MoodPage from './pages/MoodPage';
+import IntensityPage from './pages/IntensityPage';
 import DiscoveryPage from './pages/DiscoveryPage';
 import WorldPage from './pages/WorldPage';
 import FuturePage from './pages/FuturePage';
 
-const PAGES: { [key: string]: React.ComponentType<{ data: any }> } = {
-  dna: MoodIntensityPage,
+const PAGES: Record<string, React.ComponentType<{ data: any }>> = {
+  dna: DNAPage,
+  mood: MoodPage,
+  intensity: IntensityPage,
   discovery: DiscoveryPage,
   world: WorldPage,
   future: FuturePage,
 };
 
 interface Props {
-  record: RecordType;
+  record: Record;
   data: any;
 }
 

@@ -2,14 +2,6 @@
 
 const BASE = 'https://api.spotify.com/v1';
 
-export type SpotifyRefreshResponse = {
-  access_token: string;
-  token_type: 'Bearer';
-  scope: string;
-  expires_in: number;
-  refresh_token?: string;
-};
-
 export async function refreshAccessToken(refreshToken: string) {
   const res = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -21,11 +13,8 @@ export async function refreshAccessToken(refreshToken: string) {
       client_secret: process.env.SPOTIFY_CLIENT_SECRET!,
     }),
   });
-  if (!res.ok) {
-    const details = await res.text();
-    throw new Error(`Failed to refresh token (${res.status}): ${details}`);
-  }
-  return res.json() as Promise<SpotifyRefreshResponse>;
+  if (!res.ok) throw new Error('Failed to refresh token');
+  return res.json();
 }
 
 export async function spotifyFetch(path: string, token: string) {
