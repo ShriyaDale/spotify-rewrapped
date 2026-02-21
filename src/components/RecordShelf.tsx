@@ -9,16 +9,8 @@ interface Props {
   activeId?: string;
 }
 
-function SpineRecord({
-  record,
-  index,
-  isActive,
-  onClick,
-}: {
-  record: Record;
-  index: number;
-  isActive: boolean;
-  onClick: () => void;
+function CDDisc({ record, index, isActive, onClick }: {
+  record: Record; index: number; isActive: boolean; onClick: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -29,181 +21,127 @@ function SpineRecord({
       onClick={onClick}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
-      initial={{ y: 40, opacity: 0 }}
-      animate={{ y: isActive ? -20 : 0, opacity: 1 }}
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: isActive ? -14 : 0, opacity: 1 }}
       transition={{ delay: index * 0.07, type: 'spring', stiffness: 260, damping: 22 }}
-      whileHover={{ y: -14, transition: { duration: 0.18, ease: 'easeOut' } }}
-      style={{
-        position: 'relative',
-        width: 58,
-        height: 300,
-        cursor: 'pointer',
-        userSelect: 'none',
-        flexShrink: 0,
-      }}
+      whileHover={{ y: -10, transition: { duration: 0.15 } }}
+      style={{ cursor: 'pointer', userSelect: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, flexShrink: 0 }}
     >
-      {/* Main sleeve / spine */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: 58,
-          height: 300,
-          borderRadius: 6,
-          zIndex: 1,
-          background: `linear-gradient(160deg, ${record.color} 0%, ${record.spineColor} 60%, #0a0604 100%)`,
-          border: `1px solid ${record.accent}50`,
-          boxShadow: `
-            3px 0 0 ${record.rings[1]},
-            6px 0 0 ${record.rings[2]},
-            9px 0 0 ${record.rings[3]},
-            3px 6px 30px rgba(0,0,0,0.75),
-            inset 2px 0 0 rgba(255,255,255,0.08)
-          `,
-          overflow: 'hidden',
-        }}
-      >
-        {/* Texture overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, opacity: 0.1,
-          backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 1px, transparent 1px, transparent 5px)',
-        }} />
+      <div style={{ position: 'relative', width: 100, height: 100 }}>
+        {/* Active glow ring */}
+        {isActive && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            style={{
+              position: 'absolute', inset: -5, borderRadius: '50%',
+              border: `2.5px solid ${record.accent}`,
+              boxShadow: `0 0 20px ${record.accent}80`,
+            }}
+          />
+        )}
 
-        {/* Top accent bar */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 6,
-          background: record.accent, opacity: 0.9,
-          borderRadius: '6px 6px 0 0',
-        }} />
-
-        {/* Vertical title */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%) rotate(-90deg)',
-          whiteSpace: 'nowrap',
-          fontFamily: "'Cormorant Garamond', serif",
-          fontSize: 13,
-          fontWeight: 300,
-          letterSpacing: '0.5em',
-          color: 'white',
-          textShadow: `0 0 12px ${record.accent}, 0 1px 4px rgba(0,0,0,0.8)`,
+        <svg width={100} height={100} viewBox="0 0 100 100" style={{
+          display: 'block',
+          filter: hovered
+            ? `drop-shadow(0 6px 20px ${record.accent}90) brightness(1.15)`
+            : isActive
+            ? `drop-shadow(0 4px 16px ${record.accent}70) brightness(1.1)`
+            : `drop-shadow(0 4px 14px rgba(0,0,0,0.8)) brightness(1.0)`,
+          transition: 'filter 0.2s',
         }}>
-          {record.title}
-        </div>
+          <defs>
+            {/* Base disc — noticeably lighter than black */}
+            <radialGradient id={`disc-${record.id}`} cx="42%" cy="38%">
+              <stop offset="0%" stopColor="#4a4a4a" />
+              <stop offset="40%" stopColor="#2e2e2e" />
+              <stop offset="100%" stopColor="#1a1a1a" />
+            </radialGradient>
+            {/* Label gradient using the record's own colors — bright */}
+            <radialGradient id={`label-${record.id}`} cx="50%" cy="40%">
+              <stop offset="0%" stopColor={record.label} />
+              <stop offset="60%" stopColor={record.accent} />
+              <stop offset="100%" stopColor={record.color} />
+            </radialGradient>
+            {/* Iridescent sheen — more visible */}
+            <linearGradient id={`sheen-${record.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={record.label} stopOpacity="0.45" />
+              <stop offset="40%" stopColor={record.accent} stopOpacity="0.25" />
+              <stop offset="100%" stopColor={record.label} stopOpacity="0.10" />
+            </linearGradient>
+          </defs>
 
-        {/* Bottom catalog dot */}
-        <div style={{
-          position: 'absolute', bottom: 14, left: '50%',
-          transform: 'translateX(-50%)',
-          width: 10, height: 10, borderRadius: '50%',
-          background: record.accent,
-          opacity: 0.6,
-          boxShadow: `0 0 6px ${record.accent}`,
-        }} />
+          {/* Outer rim — slightly lighter than disc */}
+          <circle cx="50" cy="50" r="49" fill="#252525" />
+          {/* Main disc surface */}
+          <circle cx="50" cy="50" r="47" fill={`url(#disc-${record.id})`} />
 
-        {/* Left accent stripe */}
-        <div style={{
-          position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
-          background: `linear-gradient(to bottom, ${record.accent}, ${record.color})`,
-          opacity: 0.8, borderRadius: '6px 0 0 6px',
-        }} />
+          {/* Groove rings — more visible */}
+          {[42, 36, 30, 24].map((r, i) => (
+            <circle key={i} cx="50" cy="50" r={r}
+              fill="none"
+              stroke={i % 2 === 0 ? `${record.accent}50` : 'rgba(255,255,255,0.08)'}
+              strokeWidth={i % 2 === 0 ? 1.5 : 0.8}
+            />
+          ))}
 
-        {/* Hover glow */}
-        <motion.div
-          animate={{ opacity: hovered ? 1 : 0 }}
-          style={{
-            position: 'absolute', inset: 0,
-            background: `linear-gradient(160deg, ${record.accent}25 0%, transparent 60%)`,
-          }}
-        />
+          {/* Color sheen overlay */}
+          <circle cx="50" cy="50" r="47" fill={`url(#sheen-${record.id})`} />
+
+          {/* Surface highlight arc */}
+          <ellipse cx="32" cy="26" rx="14" ry="8" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+
+          {/* Label — bright, using accent colors */}
+          <circle cx="50" cy="50" r="19" fill={`url(#label-${record.id})`} />
+          {record.rings.slice(0, 2).map((c, i) => (
+            <circle key={i} cx="50" cy="50" r={17 - i * 4}
+              fill="none" stroke={c} strokeWidth="0.8" opacity="0.6"
+            />
+          ))}
+
+          {/* Icon — larger and centered */}
+          <text x="50" y="55" textAnchor="middle" fontSize="14">{record.icon}</text>
+
+          {/* Spindle */}
+          <circle cx="50" cy="50" r="4" fill="#111" />
+          <circle cx="50" cy="50" r="2" fill="#222" />
+        </svg>
       </div>
 
-      {/* Active indicator */}
-      {isActive && (
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          style={{
-            position: 'absolute', bottom: -8, left: 0, right: 0,
-            height: 3, borderRadius: 2,
-            background: record.accent,
-            boxShadow: `0 0 10px ${record.accent}`,
-          }}
-        />
-      )}
+      {/* Title — pure white, larger */}
+      <div style={{
+        fontSize: 11, letterSpacing: 2.5,
+        fontFamily: 'monospace', fontWeight: 700,
+        color: isActive ? record.accent : '#ffffff',
+        transition: 'color 0.2s',
+        textAlign: 'center',
+      }}>{record.title}</div>
     </motion.div>
   );
 }
 
 export default function RecordShelf({ records, onRecordClick, activeId }: Props) {
   return (
-    <div style={{ width: '100%', maxWidth: 580, padding: '0 16px' }}>
-      {/* Label */}
-      <div style={{ textAlign: 'center', marginBottom: 20 }}>
-        <span style={{
-          fontSize: 10,
-          color: 'rgba(255,255,255,0.55)',
-          letterSpacing: 4,
-          fontFamily: 'monospace',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-        }}>
-          Your Collection — Click or Drag to Turntable
-        </span>
-      </div>
-
-      {/* Shelf container */}
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, width: '100%' }}>
+      {/* CD tray — slightly lighter background so discs contrast */}
       <div style={{
-        position: 'relative',
-        borderRadius: 12,
-        padding: '20px 20px 0 20px',
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: 'inset 0 10px 30px rgba(0,0,0,0.5)',
+        display: 'flex', gap: 22, alignItems: 'flex-end', justifyContent: 'center',
+        flexWrap: 'wrap',
+        padding: '24px 36px 20px',
+        background: 'linear-gradient(to bottom, #2a1a10, #1a1008)',
+        borderRadius: 18,
+        border: '1px solid rgba(255,255,255,0.12)',
+        boxShadow: 'inset 0 4px 24px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.5)',
       }}>
-        {/* Back wall */}
-        <div style={{
-          position: 'absolute', inset: 0, borderRadius: 12, zIndex: 0,
-          background: 'linear-gradient(to bottom, #1E0E08 0%, #150A04 100%)',
-          backgroundImage: 'repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 60px)',
-        }} />
-
-        {/* Records row */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          display: 'flex',
-          gap: 12,
-          justifyContent: 'center',
-          flexWrap: 'nowrap',
-          paddingBottom: 0,
-        }}>
-          {records.map((rec, i) => (
-            <SpineRecord
-              key={rec.id}
-              record={rec}
-              index={i}
-              isActive={activeId === rec.id}
-              onClick={() => onRecordClick(rec)}
-            />
-          ))}
-        </div>
-
-        {/* Shelf board */}
-        <div style={{
-          position: 'relative', zIndex: 2,
-          height: 20, marginTop: 0,
-          background: 'linear-gradient(to bottom, #7B5030 0%, #5A3418 40%, #3A1E08 100%)',
-          borderRadius: '0 0 10px 10px',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1)',
-        }} />
-        <div style={{
-          height: 8,
-          background: 'linear-gradient(to bottom, #2C1208, #1A0A04)',
-          borderRadius: '0 0 8px 8px',
-          boxShadow: '0 6px 16px rgba(0,0,0,0.5)',
-        }} />
+        {records.map((rec, i) => (
+          <CDDisc
+            key={rec.id}
+            record={rec}
+            index={i}
+            isActive={activeId === rec.id}
+            onClick={() => onRecordClick(rec)}
+          />
+        ))}
       </div>
     </div>
   );

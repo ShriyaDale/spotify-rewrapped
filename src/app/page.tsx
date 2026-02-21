@@ -71,35 +71,21 @@ export default function Home() {
   const [activeRecord, setActiveRecord] = useState<Record | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
-  const [isLanding, setIsLanding] = useState(false); // record landing on player
+  const [isLanding, setIsLanding] = useState(false);
   const [spotifyData, setSpotifyData] = useState<any>(null);
   const [authStatus, setAuthStatus] = useState<'idle' | 'loading' | 'ok' | 'err'>('idle');
 
   useEffect(() => {
-    // Check if already authenticated
     fetch('/api/data')
-      .then((r) => {
-        if (r.ok) { setAuthStatus('ok'); return r.json(); }
-        throw new Error('not auth');
-      })
+      .then((r) => { if (r.ok) { setAuthStatus('ok'); return r.json(); } throw new Error('not auth'); })
       .then((d) => setSpotifyData(d))
       .catch(() => setAuthStatus('idle'));
   }, []);
-
-  const handleRecordClick = (record: Record) => {
-    placeRecord(record);
-  };
-
-  const handleRecordDrop = (id: string) => {
-    const rec = RECORDS.find((r) => r.id === id);
-    if (rec) placeRecord(rec);
-  };
 
   const placeRecord = (record: Record) => {
     setShowPanel(false);
     setIsLanding(true);
     setActiveRecord(record);
-    // after landing animation, show panel
     setTimeout(() => {
       setIsLanding(false);
       setTimeout(() => setShowPanel(true), 400);
@@ -111,104 +97,177 @@ export default function Home() {
     setTimeout(() => setActiveRecord(null), 500);
   };
 
+  const handleNavSelect = (id: string | null) => {
+    if (!id) { handleEject(); return; }
+    const rec = RECORDS.find(r => r.id === id);
+    if (!rec) return;
+    setActiveRecord(rec);
+    setIsLanding(false);
+    setShowPanel(true);
+  };
+
   const showPlayerArea = !showPanel;
+  const navActiveId = showPanel ? (activeRecord?.id ?? null) : null;
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen" style={{ background: '#171515' }}>
       <Header authStatus={authStatus} profile={spotifyData?.profile} />
 
-      <main className="flex flex-col items-center pt-8 pb-20 gap-10 px-4">
-        {/* Hero */}
+      <main style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        paddingTop: 40, paddingBottom: 100,
+        paddingLeft: 16, paddingRight: 16,
+        gap: 0,
+      }}>
+
+        {/* ── Hero ── */}
         <motion.div
-          className="text-center"
-          initial={{ y: -20, opacity: 0 }}
+          style={{ textAlign: 'center', marginBottom: 32 }}
+          initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6 }}
         >
-          <h1
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(32px, 5vw, 56px)',
-              color: 'white',
-              fontWeight: 900,
-              margin: 0,
-              letterSpacing: '-1px',
-              textShadow: '0 2px 40px rgba(200,118,44,0.3)',
-            }}
-          >
-            your year, but rewrapped
+          <h1 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(40px, 5.5vw, 64px)',
+            color: '#ffffff',
+            fontWeight: 900, margin: 0,
+            letterSpacing: '-1px',
+            textShadow: '0 2px 40px rgba(200,118,44,0.5)',
+          }}>
+            your music,{' '}
+            <span style={{ color: '#E8923A', fontStyle: 'italic' }}>but rewrapped</span>
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', marginTop: 8, fontSize: 16 }}>
-            click a record to play it — or drag it onto the turntable
+          <p style={{
+            color: 'rgba(255,255,255,0.75)',
+            fontStyle: 'italic', marginTop: 14, fontSize: 18,
+            fontFamily: 'Georgia, serif',
+          }}>
+            Pick a record to begin your journey
           </p>
         </motion.div>
 
+        {/* ── Turntable ── */}
         <AnimatePresence>
           {showPlayerArea && (
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
-              style={{
-                display: 'flex',
-                gap: 36,
-                alignItems: 'flex-start',
-                width: '100%',
-                maxWidth: 1200,
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-              }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.35 }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 28 }}
             >
-              <div style={{ flex: 1, minWidth: 300, maxWidth: 620, transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-                <RecordShelf records={RECORDS} onRecordClick={handleRecordClick} activeId={activeRecord?.id} />
-              </div>
+              <TurntableUnit
+                activeRecord={activeRecord}
+                isLanding={isLanding}
+                onDrop={(id) => { const rec = RECORDS.find(r => r.id === id); if (rec) placeRecord(rec); }}
+                isDragOver={dragOver}
+                onDragOver={() => setDragOver(true)}
+                onDragLeave={() => setDragOver(false)}
+                onEject={handleEject}
+              />
 
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 56 }}>
-                <TurntableUnit
-                  activeRecord={activeRecord}
-                  isLanding={isLanding}
-                  onDrop={handleRecordDrop}
-                  isDragOver={dragOver}
-                  onDragOver={() => setDragOver(true)}
-                  onDragLeave={() => setDragOver(false)}
-                  onEject={handleEject}
-                />
-
-                {/* Now playing */}
-                <AnimatePresence>
-                  {activeRecord && !isLanding && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      style={{ textAlign: 'center', marginTop: -36 }}
-                    >
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', letterSpacing: 4, fontFamily: 'monospace' }}>
-                        NOW PLAYING
-                      </div>
-                      <div style={{ fontSize: 18, color: 'white', fontFamily: "'Playfair Display', serif", fontWeight: 'bold', marginTop: 4 }}>
+              {/* Now playing */}
+              <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AnimatePresence mode="wait">
+                  {activeRecord && !isLanding ? (
+                    <motion.div key={activeRecord.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 24, color: '#ffffff', fontFamily: "'Playfair Display', serif", fontWeight: 'bold', marginBottom: 4 }}>
                         {activeRecord.icon} {activeRecord.title}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginTop: 6 }}>
-                        {[0, 1, 2, 3, 4].map((i) => (
-                          <motion.div
-                            key={i}
-                            style={{ width: 2, background: '#1DB954', borderRadius: 1 }}
-                            animate={{ height: [3, 14, 3] }}
+                      <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+                        {activeRecord.sub}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, marginTop: 7 }}>
+                        {[0, 1, 2, 3, 4].map(i => (
+                          <motion.div key={i} style={{ width: 2.5, background: '#1DB954', borderRadius: 2 }}
+                            animate={{ height: [3, 16, 3] }}
                             transition={{ repeat: Infinity, duration: 0.7, delay: i * 0.13, ease: 'easeInOut' }}
                           />
                         ))}
                       </div>
                     </motion.div>
-                  )}
+                  ) : !activeRecord ? (
+                    <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                      <p style={{ color: 'rgba(255,255,255,0.55)', fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 16, margin: 0 }}>
+                        Your Collection - Click or Drag a Record to the Turntable
+                      </p>
+                    </motion.div>
+                  ) : null}
                 </AnimatePresence>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Dashboard panel */}
+        {/* ── CD Shelf ── */}
+        <AnimatePresence>
+          {showPlayerArea && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ delay: 0.18, duration: 0.4 }}
+              style={{ width: '100%', maxWidth: 700, marginBottom: 28 }}
+            >
+              <RecordShelf records={RECORDS} onRecordClick={placeRecord} activeId={activeRecord?.id} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Nav pills ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ marginBottom: 36 }}
+        >
+          <div style={{
+            display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            borderRadius: 999, padding: '7px 12px',
+            boxShadow: '0 2px 20px rgba(0,0,0,0.5)',
+          }}>
+            <motion.button
+              onClick={() => handleNavSelect(null)}
+              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+              style={{
+                padding: '8px 18px', borderRadius: 999,
+                border: `1.5px solid ${!showPanel ? 'rgba(232,146,58,0.9)' : 'transparent'}`,
+                background: !showPanel ? 'rgba(232,146,58,0.18)' : 'transparent',
+                color: !showPanel ? '#E8923A' : '#ffffff',
+                cursor: 'pointer', fontSize: 12, letterSpacing: 2,
+                fontFamily: 'monospace', fontWeight: 700, transition: 'all 0.15s',
+              }}
+            >SHELF</motion.button>
+
+            {RECORDS.map(rec => {
+              const isActive = navActiveId === rec.id;
+              return (
+                <motion.button
+                  key={rec.id}
+                  onClick={() => handleNavSelect(rec.id)}
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  style={{
+                    padding: '8px 18px', borderRadius: 999,
+                    border: `1.5px solid ${isActive ? rec.accent : 'transparent'}`,
+                    background: isActive ? `${rec.color}40` : 'transparent',
+                    color: isActive ? rec.accent : '#ffffff',
+                    cursor: 'pointer', fontSize: 12, letterSpacing: 2,
+                    fontFamily: 'monospace', fontWeight: 700, transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>{rec.icon}</span>
+                  {rec.title}
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* ── Dashboard panel ── */}
         <AnimatePresence mode="wait">
           {showPanel && activeRecord ? (
             <motion.div
@@ -219,76 +278,36 @@ export default function Home() {
               transition={{ duration: 0.45, ease: 'easeOut' }}
               style={{ width: '100%', maxWidth: 920 }}
             >
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
                 <button
                   onClick={handleEject}
                   style={{
-                    fontSize: 11,
-                    letterSpacing: 1.5,
-                    fontFamily: 'monospace',
-                    color: 'rgba(255,255,255,0.8)',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.18)',
-                    borderRadius: 999,
-                    padding: '7px 16px',
-                    cursor: 'pointer',
+                    fontSize: 13, letterSpacing: 2, fontFamily: 'monospace', fontWeight: 700,
+                    color: '#ffffff',
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    borderRadius: 999, padding: '9px 24px',
+                    cursor: 'pointer', transition: 'all 0.18s',
                   }}
-                >
-                  ← BACK TO SHELF
-                </button>
+                >← BACK TO SHELF</button>
               </div>
               <DashboardPanel record={activeRecord} data={spotifyData} />
             </motion.div>
-          ) : !activeRecord ? (
+          ) : !activeRecord && !showPanel ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: 180,
-                maxWidth: 920,
-              }}
+              style={{ textAlign: 'center', maxWidth: 280 }}
             >
-              <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.18)', maxWidth: 260 }}>
-                <div style={{ fontSize: 60, marginBottom: 16, opacity: 0.4 }}>🎵</div>
-                <p style={{ fontSize: 13, fontStyle: 'italic', lineHeight: 1.7, fontFamily: 'Georgia, serif' }}>
-                  Select a record from your collection to see your listening analytics
-                </p>
-              </div>
+              <div style={{ fontSize: 60, marginBottom: 16, opacity: 0.35 }}>🎵</div>
+              <p style={{ fontSize: 16, fontStyle: 'italic', lineHeight: 1.7, fontFamily: 'Georgia, serif', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+                Select a record from your collection to see your listening analytics
+              </p>
             </motion.div>
           ) : null}
         </AnimatePresence>
 
-        {/* Auth note
-        <AnimatePresence>
-          {authStatus === 'idle' && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              style={{
-                maxWidth: 480,
-                textAlign: 'center',
-                padding: '16px 24px',
-                borderRadius: 14,
-                border: '1px solid rgba(200,118,44,0.2)',
-                background: 'rgba(200,118,44,0.05)',
-              }}
-            >
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, lineHeight: 1.8, margin: 0, fontFamily: 'Georgia, serif' }}>
-                Showing demo data. Connect Spotify for your real listening stats.
-                <br />
-                <span style={{ color: 'rgba(205,133,63,0.4)', fontSize: 10, fontFamily: 'monospace' }}>
-                  See README.md for setup instructions.
-                </span>
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence> */}
       </main>
     </div>
   );
