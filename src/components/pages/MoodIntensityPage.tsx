@@ -24,7 +24,7 @@ function HelixCanvas({ width = 130, height = 280 }: { width?: number; height?: n
       ctx.beginPath();
       ctx.moveTo(cx, 12);
       ctx.lineTo(cx, H - 12);
-      ctx.strokeStyle = 'rgb(255, 255, 255)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.11)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -118,7 +118,7 @@ function StatBar({ label, value, color, delay = 0, source }: { label: string; va
         <span style={{ fontFamily: 'Georgia, serif', fontWeight: 600 }}>{label}</span>
         <span style={{ fontFamily: 'monospace', color, fontWeight: 700 }}>{(safe * 100).toFixed(0)}</span>
       </div>
-      <div style={{ height: 5, background: 'rgb(255, 255, 255)', borderRadius: 3, overflow: 'hidden' }}>
+      <div style={{ height: 5, background: 'rgba(255, 255, 255, 0.14)', borderRadius: 3, overflow: 'hidden' }}>
         <motion.div
           style={{ height: '100%', borderRadius: 3, background: `linear-gradient(to right, ${color}88, ${color})`, boxShadow: `0 0 8px ${color}50` }}
           initial={{ width: 0 }}
@@ -127,7 +127,7 @@ function StatBar({ label, value, color, delay = 0, source }: { label: string; va
         />
       </div>
       {source && (
-        <div style={{ fontSize: 12, color: 'rgb(255, 255, 255)', fontFamily: 'monospace', marginTop: 3 }}>{source}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.2)', fontFamily: 'monospace', marginTop: 3 }}>{source}</div>
       )}
     </div>
   );
