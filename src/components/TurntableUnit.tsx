@@ -177,7 +177,7 @@ export default function TurntableUnit({ activeRecord, isLanding, onDrop, isDragO
         <div style={{
           position: 'absolute',
           width: 12, height: 12, borderRadius: '50%',
-          top: 'calc(47% - 10px)', left: 'calc(51% - 1px)',
+          top: 'calc(50% - 10px)', left: 'calc(51% - 1px)',
           transform: 'translate(-51%, -56%) translate(-50%, -50%)',
           background: 'linear-gradient(to bottom, #ffffff, #ffffff)',
           boxShadow: '0 0 4px rgba(0,0,0,0.8)',
