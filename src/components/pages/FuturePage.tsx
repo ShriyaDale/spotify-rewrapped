@@ -108,7 +108,7 @@ export default function FuturePage({ data }: Props) {
       {/* Header */}
       <div>
         <h2 style={{ fontSize: 24, fontWeight: 300, color: 'rgba(255,255,255,0.9)', margin: 0, fontFamily: 'Georgia, serif', letterSpacing: 1 }}>
-          Next Year&apos;s Forecast
+          Your Upcoming Trends
         </h2>
         <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: '8px 0 0', fontFamily: 'monospace', letterSpacing: 1 }}>
           {profileName}&apos;s taste trends · AI insights · 6-month forecast

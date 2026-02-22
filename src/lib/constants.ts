@@ -36,7 +36,7 @@ export const RECORDS = [
   },
   {
     id: 'future',
-    title: 'NEXT YEAR',
+    title: 'FORECAST',
     sub: 'Your Musical Future',
     icon: '🔮',
     color: '#320860',
