@@ -1,5 +1,7 @@
 # Rewrapped
-***WiCS - Hack to the Beat***
+**WiCS - Hack to the Beat**
+***Won And the Grammy Goes to... for the best project that fully embraces the theme of music and focuses on the link between sound and technology**
+
 
 ### Inspiration
 In 2025, over 300 million users engaged with Spotify Wrapped, highlighting how much people love seeing their music story visualized and shared. Music has become one of the most personal forms of self-express, reflecting our moods and identities, yet most streaming platforms reduce this rich, complex data to generic playlists and surface-level recommendations. Wrapped only appears once a year, after disappearing forever, leaving users without a way to continuously explore and understand their evolving music tastes. Many listeners prefer a deeper, always-available way to showcase their curated tastes, connect with others with similar vibes, and see how their preferences may change in the future. That’s why we created Rewrapped, an AI-powered music discovery platform that brings a smarter, evolving version of your music journey to life, helping you express who you are, connect globally, and explore the sound of your future.
