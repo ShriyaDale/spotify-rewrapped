@@ -1,6 +1,7 @@
-# Rewrapped
-**WiCS - Hack to the Beat**
-***Won And the Grammy Goes to... for the best project that fully embraces the theme of music and focuses on the link between sound and technology**
+# Rewrapped: WiCS - Hack to the Beat
+
+## 🏆 Won “And the Grammy Goes To…”  
+**For the Best Project That Fully Embraces the Theme of Music and Focuses on the Link Between Sound and Technology**
 
 
 ### Inspiration
